@@ -20,5 +20,7 @@ from payroll_app import views
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin', admin.site.urls),
+    path('', views.homepage, name='home'),
+    path('home/', views.homepage, name='home'),
 ]
