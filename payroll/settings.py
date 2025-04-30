@@ -68,7 +68,7 @@ DATABASES = {
         'PORT': os.getenv('DB_PORT'),
     }
 }
-
+AUTH_USER_MODEL = 'payroll_app.CustomUser'
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
