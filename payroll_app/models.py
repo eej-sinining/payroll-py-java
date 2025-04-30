@@ -57,8 +57,6 @@ class Admin(models.Model):
     username = models.CharField(max_length=50, unique=True)
     password = models.CharField(max_length=255)
 
-
-
 class CustomUserManager(BaseUserManager):
     def create_user(self, username, password=None, **extra_fields):
         if not username:
