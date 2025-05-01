@@ -3,14 +3,21 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 
 class Employee(models.Model):
     POSITION_CHOICES = [
-        ('Admin', 'Admin'),
-        ('Mayor', 'Mayor'),
-        ('Vice Mayor', 'Vice Mayor'),
-        ('Councilor', 'Councilor'),
-        ('Mayor\'s Assistant', 'Mayor\'s Assistant'),
-        ('Vice Mayor\'s Assistant', 'Vice Mayor\'s Assistant'),
-        ('Councilor\'s Assistant', 'Councilor\'s Assistant'),
-        ('Security Guard', 'Security Guard'),
+        ('mayor', 'Mayor'),
+        ('vice mayor', 'Vice Mayor'),
+        ('councilor', 'Councilor'),
+        ('department head', 'Department Head'),
+        ('clerk', 'Clerk'),
+        ('treasurer', 'treasurer'),
+        ('assessor', 'Assessor'),
+        ('pro', 'Pro'), #public relation officer
+        ('legal officer', 'Legal Officer'), #city attorney
+        ('hr', 'HR'), #human resources
+        ('pm', 'PM'), #Project Manager
+        ('staff', 'Staff'),
+        ('driver', 'Driver'),
+        ('utility', 'Utility'),
+
     ]
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
