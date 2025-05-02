@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Navbar with Animation</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #fff;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        i {
+            margin-right: 10px;
+        }
+        /*----------bootstrap-navbar-css------------*/
+        .navbar-logo {
+            padding: 15px;
+            color: #e8716d;
+        }
+        .navbar-mainbg {
+            background-color: #3b3c42;
+            padding: 0px;
+        }
+        #navbarSupportedContent {
+            overflow: hidden;
+            position: relative;
+        }
+        #navbarSupportedContent ul {
+            padding: 0px;
+            margin: 0px;
+        }
+        #navbarSupportedContent ul li a i {
+            margin-right: 10px;
+        }
+        #navbarSupportedContent li {
+            list-style-type: none;
+            float: left;
+        }
+        #navbarSupportedContent ul li a {
+            color: rgba(255,255,255,0.5);
+            text-decoration: none;
+            font-size: 15px;
+            display: block;
+            padding: 20px 20px;
+            transition-duration: 0.6s;
+            transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+        }
+        #navbarSupportedContent > ul > li.active > a {
+            color: #e8716d;
+            background-color: transparent;
+            transition: all 0.7s;
+        }
+        #navbarSupportedContent a:not(:only-child):after {
+            content: "\f105";
+            position: absolute;
+            right: 20px;
+            top: 10px;
+            font-size: 14px;
+            font-family: "Font Awesome 5 Free";
+            display: inline-block;
+            padding-right: 3px;
+            vertical-align: middle;
+            font-weight: 900;
+            transition: 0.5s;
+        }
+        #navbarSupportedContent .active > a:not(:only-child):after {
+            transform: rotate(90deg);
+        }
+        .hori-selector {
+            display: inline-block;
+            position: absolute;
+            height: 100%;
+            top: 0px;
+            left: 0px;
+            transition-duration: 0.6s;
+            transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            background-color: #fff;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+            margin-top: 10px;
+        }
+        .hori-selector .right,
+        .hori-selector .left {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background-color: #fff;
+            bottom: 10px;
+        }
+        .hori-selector .right {
+            right: -25px;
+        }
+        .hori-selector .left {
+            left: -25px;
+        }
+        .hori-selector .right:before,
+        .hori-selector .left:before {
+            content: '';
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #3b3c42;
+        }
+        .hori-selector .right:before {
+            bottom: 0;
+            right: -25px;
+        }
+        .hori-selector .left:before {
+            bottom: 0;
+            left: -25px;
+        }
+        @media(min-width: 992px) {
+            .navbar-expand-custom {
+                -ms-flex-flow: row nowrap;
+                flex-flow: row nowrap;
+                -ms-flex-pack: start;
+                justify-content: flex-start;
+            }
+            .navbar-expand-custom .navbar-nav {
+                -ms-flex-direction: row;
+                flex-direction: row;
+            }
+            .navbar-expand-custom .navbar-toggler {
+                display: none;
+            }
+            .navbar-expand-custom .navbar-collapse {
+                display: -ms-flexbox!important;
+                display: flex!important;
+                -ms-flex-preferred-size: auto;
+                flex-basis: auto;
+            }
+        }
+        @media (max-width: 991px) {
+            #navbarSupportedContent ul li a {
+                padding: 12px 30px;
+            }
+            .hori-selector {
+                margin-top: 0px;
+                margin-left: 10px;
+                border-radius: 0;
+                border-top-left-radius: 25px;
+                border-bottom-left-radius: 25px;
+            }
+            .hori-selector .left,
+            .hori-selector .right {
+                right: 10px;
+            }
+            .hori-selector .left {
+                top: -25px;
+                left: auto;
+            }
+            .hori-selector .right {
+                bottom: -25px;
+            }
+            .hori-selector .left:before {
+                left: -25px;
+                top: -25px;
+            }
+            .hori-selector .right:before {
+                bottom: -25px;
+                left: -25px;
+            }
+        }
+        
+        /* Additional styles for demo purposes */
+        .content {
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+
+
+<body>
+    <nav class="navbar navbar-expand-custom navbar-mainbg">
+        <a class="navbar-brand navbar-logo" href="#">Welcome Admin!</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="fas fa-bars text-white"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ml-auto">
+                <div class="hori-selector">
+                    <div class="left"></div>
+                    <div class="right"></div>
+                </div>               
+                <li class="nav-item active">
+                    <a class="nav-link" href="javascript:void(0);"><i class="far fa-address-book"></i>Employee Records</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="javascript:void(0);"><i class="fas fa-business-time"></i>Attendance</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="javascript:void(0);"><i class="fas fa-balance-scale"></i>Salary Setup</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="javascript:void(0);"><i class="fas fa-dollar-sign"></i>Payroll</a>
+                </li> 
+                <li class="nav-item">
+                    <a class="nav-link" href="javascript:void(0);"><i class="fas fa-tachometer-alt"></i>Log - out</a>
+                </li>              
+                
+            </ul>
+        </div>
+    </nav>
+
+     <!-- Employee Content -->
+    <div class="container mt-4" id="employeeRecordsContent">
+        <div class="row">
+          <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h3>Employee Records</h3>
+              <button class="btn btn-danger" id="generateEmployeeBtn">Generate Employee Account</button>
+            </div>
+            
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Position</th>
+                    <th>Department</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>E001</td>
+                    <td>John Doe</td>
+                    <td>Software Engineer</td>
+                    <td>IT</td>
+                    <td>john.doe@company.com</td>
+                    <td>(555) 123-4567</td>
+                    <td>
+                      <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                      <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>E002</td>
+                    <td>Jane Smith</td>
+                    <td>HR Manager</td>
+                    <td>Human Resources</td>
+                    <td>jane.smith@company.com</td>
+                    <td>(555) 987-6543</td>
+                    <td>
+                      <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                      <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>E003</td>
+                    <td>Michael Johnson</td>
+                    <td>Sales Executive</td>
+                    <td>Sales</td>
+                    <td>michael.j@company.com</td>
+                    <td>(555) 456-7890</td>
+                    <td>
+                      <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                      <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+     <!-- Attendance Content -->
+<div class="container mt-4" id="attendanceContent" style="display: none;">
+    <div class="row">
+      <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h3>Employee Attendance</h3>
+          <div>
+            <input type="date" class="form-control d-inline-block" style="width: auto;" id="attendanceDate" value="2025-05-01">
+            <button class="btn btn-danger ml-2" id="generateAttendanceReport">Generate Report</button>
+          </div>
+        </div>
+        
+        <div class="card mb-4">
+          <div class="card-header bg-light">
+            <h5 class="mb-0">Today's Summary</h5>
+          </div>
+          <div class="card-body">
+            <div class="row text-center">
+              <div class="col-md-3 mb-3">
+                <div class="card bg-success text-white">
+                  <div class="card-body">
+                    <h2>42</h2>
+                    <p class="mb-0">Present</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <div class="card bg-danger text-white">
+                  <div class="card-body">
+                    <h2>5</h2>
+                    <p class="mb-0">Absent</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <div class="card bg-warning text-white">
+                  <div class="card-body">
+                    <h2>3</h2>
+                    <p class="mb-0">Late</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <div class="card bg-info text-white">
+                  <div class="card-body">
+                    <h2>2</h2>
+                    <p class="mb-0">On Leave</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Department</th>
+                <th>Clock In</th>
+                <th>Clock Out</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>E001</td>
+                <td>John Doe</td>
+                <td>IT</td>
+                <td>08:55 AM</td>
+                <td>05:05 PM</td>
+                <td><span class="badge badge-success">Present</span></td>
+                <td>
+                  <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                </td>
+              </tr>
+              <tr>
+                <td>E002</td>
+                <td>Jane Smith</td>
+                <td>Human Resources</td>
+                <td>09:10 AM</td>
+                <td>--</td>
+                <td><span class="badge badge-warning">Late</span></td>
+                <td>
+                  <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                </td>
+              </tr>
+              <tr>
+                <td>E003</td>
+                <td>Michael Johnson</td>
+                <td>Sales</td>
+                <td>--</td>
+                <td>--</td>
+                <td><span class="badge badge-danger">Absent</span></td>
+                <td>
+                  <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                </td>
+              </tr>
+              <tr>
+                <td>E004</td>
+                <td>Sarah Williams</td>
+                <td>Marketing</td>
+                <td>08:45 AM</td>
+                <td>05:15 PM</td>
+                <td><span class="badge badge-success">Present</span></td>
+                <td>
+                  <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                </td>
+              </tr>
+              <tr>
+                <td>E005</td>
+                <td>Robert Brown</td>
+                <td>Finance</td>
+                <td>--</td>
+                <td>--</td>
+                <td><span class="badge badge-info">On Leave</span></td>
+                <td>
+                  <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/js/bootstrap.min.js"></script>
+    <script>
+        // ---------Responsive-navbar-active-animation-----------
+        function test() {
+            var tabsNewAnim = $('#navbarSupportedContent');
+            var selectorNewAnim = $('#navbarSupportedContent').find('li').length;
+            var activeItemNewAnim = tabsNewAnim.find('.active');
+            var activeWidthNewAnimHeight = activeItemNewAnim.innerHeight();
+            var activeWidthNewAnimWidth = activeItemNewAnim.innerWidth();
+            var itemPosNewAnimTop = activeItemNewAnim.position();
+            var itemPosNewAnimLeft = activeItemNewAnim.position();
+            
+            $(".hori-selector").css({
+                "top": itemPosNewAnimTop.top + "px",
+                "left": itemPosNewAnimLeft.left + "px",
+                "height": activeWidthNewAnimHeight + "px",
+                "width": activeWidthNewAnimWidth + "px"
+            });
+            
+            $("#navbarSupportedContent").on("click", "li", function (e) {
+                $('#navbarSupportedContent ul li').removeClass("active");
+                $(this).addClass('active');
+                var activeWidthNewAnimHeight = $(this).innerHeight();
+                var activeWidthNewAnimWidth = $(this).innerWidth();
+                var itemPosNewAnimTop = $(this).position();
+                var itemPosNewAnimLeft = $(this).position();
+                
+                $(".hori-selector").css({
+                    "top": itemPosNewAnimTop.top + "px",
+                    "left": itemPosNewAnimLeft.left + "px",
+                    "height": activeWidthNewAnimHeight + "px",
+                    "width": activeWidthNewAnimWidth + "px"
+                });
+            });
+        }
+        
+        $(document).ready(function () {
+            setTimeout(function () {
+                test();
+            });
+        });
+        
+        $(window).on('resize', function () {
+            setTimeout(function () {
+                test();
+            }, 500);
+        });
+        
+        $(".navbar-toggler").click(function () {
+            $(".navbar-collapse").slideToggle(300);
+            setTimeout(function () {
+                test();
+            });
+        });
+
+        // Hide all content sections initially
+$(document).ready(function() {
+    // Hide the default content
+    $(".content").hide();
+    // Show only employee records content since it's active
+    $("#employeeRecordsContent").show();
+    
+    // Handle menu item clicks
+    $("#navbarSupportedContent li").click(function() {
+        var navText = $(this).find("a").text();
+        
+        // Hide all content sections
+        $(".content, #employeeRecordsContent, #attendanceContent").hide();
+        
+        // Show appropriate content based on clicked item
+        if(navText.includes("Employee Records")) {
+            $("#employeeRecordsContent").show();
+        } else if(navText.includes("Attendance")) {
+        $("#attendanceContent").show();
+    } else {
+        // For other menu items, show the default content
+        $(".content").show();
+    }
+});
+
+// Handle attendance report generation
+$("#generateAttendanceReport").click(function() {
+    var selectedDate = $("#attendanceDate").val();
+    alert("Generating attendance report for: " + selectedDate);
+});
+    
+    // Handle generate employee button click
+    $("#generateEmployeeBtn").click(function() {
+        alert("Generate employee account functionality will be implemented here!");
+    });
+});
+    </script>
+</body>
+</html>
