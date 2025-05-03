@@ -25,4 +25,4 @@ urlpatterns = [
     path('admin', admin.site.urls),
     path('', views.homepage, name='home'),
     path('home/', views.homepage, name='home'),
-]
+] 

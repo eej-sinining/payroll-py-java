@@ -9,7 +9,7 @@ from django.template import loader
 from .forms import loginForm
 
 def homepage(request):
-    return render(request, 'payroll_app/home.html')
+    return render(request, 'payroll_app/Admin.html')
 
 def login_view(request):
     if request.method == 'POST':
@@ -27,3 +27,4 @@ def login_view(request):
                 form.add_error(None, 'Invalid Credentials')
 
         return render(request, 'payroll_app/home.html', {'form': form})
+ # Or whichever page you want as default        
