@@ -41,3 +41,18 @@ def calculate_payroll(employee, cutoff_start, cutoff_end, total_hours_worked):
             'absence_hours': Decimal(absence)
         }
     }
+def save_payroll(employee, gross_pay, total_deductions, net_pay, breakdown, cutoff_start, cutoff_end):
+    payroll = Payroll(
+        employee=employee,
+        gross_pay=gross_pay,
+        total_deductions=total_deductions,
+        net_pay=net_pay,
+        tax=breakdown['tax'],
+        sss=breakdown['sss'],
+        pagibig=breakdown['pagibig'],
+        overtime_hours=breakdown['overtime_hours'],
+        absence_hours=breakdown['absence_hours'],
+        cutoff_start=cutoff_start,
+        cutoff_end=cutoff_end
+    )
+    payroll.save()
