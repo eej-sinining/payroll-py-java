@@ -9,7 +9,7 @@ from django.template import loader
 from .forms import loginForm
 
 def homepage(request):
-    return render(request, 'payroll_app/home.html')
+    return render(request, 'payroll_app/employee.html')
 
 def login_view(request):
     if request.method == 'POST':
