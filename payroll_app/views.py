@@ -11,7 +11,7 @@ import subprocess
 import os
 
 def homepage(request):
-    return render(request, 'payroll_app/home.html')
+    return render(request, 'payroll_app/Admin.html')
 
 def login_view(request):
     if request.method == 'POST':
@@ -29,6 +29,7 @@ def login_view(request):
                 form.add_error(None, 'Invalid Credentials')
 
         return render(request, 'payroll_app/home.html', {'form': form})
+<<<<<<< HEAD
     
 
 def run_service_java(request):
@@ -66,3 +67,6 @@ def run_service_java(request):
 
     except Exception as e:
         return HttpResponse(f"Unexpected error: {str(e)}", status=500)
+=======
+ # Or whichever page you want as default        
+>>>>>>> 7ad9fd606fffea0821edbc7d37ba895fc20046c0

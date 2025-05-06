@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,176 +8,7 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/css/bootstrap.min.css">
-    <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #fff;
-        }
-        * {
-            margin: 0;
-            padding: 0;
-        }
-        i {
-            margin-right: 10px;
-        }
-        /*----------bootstrap-navbar-css------------*/
-        .navbar-logo {
-            padding: 15px;
-            color: #e8716d;
-        }
-        .navbar-mainbg {
-            background-color: #3b3c42;
-            padding: 0px;
-        }
-        #navbarSupportedContent {
-            overflow: hidden;
-            position: relative;
-        }
-        #navbarSupportedContent ul {
-            padding: 0px;
-            margin: 0px;
-        }
-        #navbarSupportedContent ul li a i {
-            margin-right: 10px;
-        }
-        #navbarSupportedContent li {
-            list-style-type: none;
-            float: left;
-        }
-        #navbarSupportedContent ul li a {
-            color: rgba(255,255,255,0.5);
-            text-decoration: none;
-            font-size: 15px;
-            display: block;
-            padding: 20px 20px;
-            transition-duration: 0.6s;
-            transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            position: relative;
-        }
-        #navbarSupportedContent > ul > li.active > a {
-            color: #e8716d;
-            background-color: transparent;
-            transition: all 0.7s;
-        }
-        #navbarSupportedContent a:not(:only-child):after {
-            content: "\f105";
-            position: absolute;
-            right: 20px;
-            top: 10px;
-            font-size: 14px;
-            font-family: "Font Awesome 5 Free";
-            display: inline-block;
-            padding-right: 3px;
-            vertical-align: middle;
-            font-weight: 900;
-            transition: 0.5s;
-        }
-        #navbarSupportedContent .active > a:not(:only-child):after {
-            transform: rotate(90deg);
-        }
-        .hori-selector {
-            display: inline-block;
-            position: absolute;
-            height: 100%;
-            top: 0px;
-            left: 0px;
-            transition-duration: 0.6s;
-            transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            background-color: #fff;
-            border-top-left-radius: 15px;
-            border-top-right-radius: 15px;
-            margin-top: 10px;
-        }
-        .hori-selector .right,
-        .hori-selector .left {
-            position: absolute;
-            width: 25px;
-            height: 25px;
-            background-color: #fff;
-            bottom: 10px;
-        }
-        .hori-selector .right {
-            right: -25px;
-        }
-        .hori-selector .left {
-            left: -25px;
-        }
-        .hori-selector .right:before,
-        .hori-selector .left:before {
-            content: '';
-            position: absolute;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background-color: #3b3c42;
-        }
-        .hori-selector .right:before {
-            bottom: 0;
-            right: -25px;
-        }
-        .hori-selector .left:before {
-            bottom: 0;
-            left: -25px;
-        }
-        @media(min-width: 992px) {
-            .navbar-expand-custom {
-                -ms-flex-flow: row nowrap;
-                flex-flow: row nowrap;
-                -ms-flex-pack: start;
-                justify-content: flex-start;
-            }
-            .navbar-expand-custom .navbar-nav {
-                -ms-flex-direction: row;
-                flex-direction: row;
-            }
-            .navbar-expand-custom .navbar-toggler {
-                display: none;
-            }
-            .navbar-expand-custom .navbar-collapse {
-                display: -ms-flexbox!important;
-                display: flex!important;
-                -ms-flex-preferred-size: auto;
-                flex-basis: auto;
-            }
-        }
-        @media (max-width: 991px) {
-            #navbarSupportedContent ul li a {
-                padding: 12px 30px;
-            }
-            .hori-selector {
-                margin-top: 0px;
-                margin-left: 10px;
-                border-radius: 0;
-                border-top-left-radius: 25px;
-                border-bottom-left-radius: 25px;
-            }
-            .hori-selector .left,
-            .hori-selector .right {
-                right: 10px;
-            }
-            .hori-selector .left {
-                top: -25px;
-                left: auto;
-            }
-            .hori-selector .right {
-                bottom: -25px;
-            }
-            .hori-selector .left:before {
-                left: -25px;
-                top: -25px;
-            }
-            .hori-selector .right:before {
-                bottom: -25px;
-                left: -25px;
-            }
-        }
-        
-        /* Additional styles for demo purposes */
-        .content {
-            padding: 20px;
-            text-align: center;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'payroll_app/css/Admin_style.css' %}">
 </head>
 
 
@@ -409,99 +241,411 @@
       </div>
     </div>
   </div>
+  
+<!-- Salary Setup Content -->
+<div class="container mt-4" id="salarySetupContent" style="display: none;">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>Salary Setup</h3>
+        <button class="btn btn-danger" id="addSalaryStructure">Add Salary Structure</button>
+      </div>
+      
+      <div class="card mb-4">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Salary Components</h5>
+        </div>
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-md-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="basicSalary" checked>
+                <label class="form-check-label" for="basicSalary">
+                  Basic Salary
+                </label>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="houseRentAllowance" checked>
+                <label class="form-check-label" for="houseRentAllowance">
+                  House Rent Allowance
+                </label>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="medicalAllowance" checked>
+                <label class="form-check-label" for="medicalAllowance">
+                  Medical Allowance
+                </label>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="transportAllowance" checked>
+                <label class="form-check-label" for="transportAllowance">
+                  Transport Allowance
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="overtimePay" checked>
+                <label class="form-check-label" for="overtimePay">
+                  Overtime Pay
+                </label>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="bonus">
+                <label class="form-check-label" for="bonus">
+                  Bonus
+                </label>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="incomeTax" checked>
+                <label class="form-check-label" for="incomeTax">
+                  Income Tax (Deduction)
+                </label>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="providentFund" checked>
+                <label class="form-check-label" for="providentFund">
+                  Provident Fund (Deduction)
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Designation</th>
+              <th>Base Salary</th>
+              <th>HRA</th>
+              <th>Medical</th>
+              <th>Transport</th>
+              <th>Deductions</th>
+              <th>Net Salary</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>S001</td>
+              <td>Software Engineer</td>
+              <td>$5,000</td>
+              <td>$1,000</td>
+              <td>$500</td>
+              <td>$300</td>
+              <td>$800</td>
+              <td>$6,000</td>
+              <td>
+                <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+              </td>
+            </tr>
+            <tr>
+              <td>S002</td>
+              <td>HR Manager</td>
+              <td>$4,500</td>
+              <td>$900</td>
+              <td>$500</td>
+              <td>$300</td>
+              <td>$700</td>
+              <td>$5,500</td>
+              <td>
+                <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+              </td>
+            </tr>
+            <tr>
+              <td>S003</td>
+              <td>Sales Executive</td>
+              <td>$3,500</td>
+              <td>$700</td>
+              <td>$400</td>
+              <td>$250</td>
+              <td>$550</td>
+              <td>$4,300</td>
+              <td>
+                <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+              </td>
+            </tr>
+            <tr>
+              <td>S004</td>
+              <td>Marketing Manager</td>
+              <td>$4,000</td>
+              <td>$800</td>
+              <td>$500</td>
+              <td>$300</td>
+              <td>$650</td>
+              <td>$4,950</td>
+              <td>
+                <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Payroll Content -->
+<div class="container mt-4" id="payrollContent" style="display: none;">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>Payroll Management</h3>
+        <div>
+          <select class="form-control d-inline-block mr-2" style="width: auto;">
+            <option>May 2025</option>
+            <option>April 2025</option>
+            <option>March 2025</option>
+            <option>February 2025</option>
+          </select>
+          <button class="btn btn-danger" id="processPayroll">Process Payroll</button>
+        </div>
+      </div>
+      
+      <div class="card mb-4">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Payroll Summary - May 2025</h5>
+        </div>
+        <div class="card-body">
+          <div class="row text-center">
+            <div class="col-md-3 mb-3">
+              <div class="card bg-primary text-white">
+                <div class="card-body">
+                  <h2>$86,750</h2>
+                  <p class="mb-0">Total Payroll</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3 mb-3">
+              <div class="card bg-success text-white">
+                <div class="card-body">
+                  <h2>52</h2>
+                  <p class="mb-0">Employees</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3 mb-3">
+              <div class="card bg-info text-white">
+                <div class="card-body">
+                  <h2>$12,500</h2>
+                  <p class="mb-0">Bonuses</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3 mb-3">
+              <div class="card bg-warning text-white">
+                <div class="card-body">
+                  <h2>$15,200</h2>
+                  <p class="mb-0">Deductions</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <ul class="nav nav-tabs mb-3" id="payrollTabs" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link active" id="pending-tab" data-toggle="tab" href="#pending" role="tab">Pending</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="processed-tab" data-toggle="tab" href="#processed" role="tab">Processed</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="history-tab" data-toggle="tab" href="#history" role="tab">History</a>
+        </li>
+      </ul>
+      
+      <div class="tab-content" id="payrollTabContent">
+        <div class="tab-pane fade show active" id="pending" role="tabpanel">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Designation</th>
+                  <th>Basic Salary</th>
+                  <th>Allowances</th>
+                  <th>Overtime</th>
+                  <th>Deductions</th>
+                  <th>Net Salary</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>E001</td>
+                  <td>John Doe</td>
+                  <td>Software Engineer</td>
+                  <td>$5,000</td>
+                  <td>$1,800</td>
+                  <td>$200</td>
+                  <td>$800</td>
+                  <td>$6,200</td>
+                  <td>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" checked>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>E002</td>
+                  <td>Jane Smith</td>
+                  <td>HR Manager</td>
+                  <td>$4,500</td>
+                  <td>$1,700</td>
+                  <td>$0</td>
+                  <td>$700</td>
+                  <td>$5,500</td>
+                  <td>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" checked>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>E003</td>
+                  <td>Michael Johnson</td>
+                  <td>Sales Executive</td>
+                  <td>$3,500</td>
+                  <td>$1,350</td>
+                  <td>$150</td>
+                  <td>$550</td>
+                  <td>$4,450</td>
+                  <td>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" checked>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+                
+        <div class="tab-pane fade" id="processed" role="tabpanel">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Payment Date</th>
+                  <th>Payment Method</th>
+                  <th>Net Salary</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>E004</td>
+                  <td>Sarah Williams</td>
+                  <td>05/01/2025</td>
+                  <td>Bank Transfer</td>
+                  <td>$5,750</td>
+                  <td><span class="badge badge-success">Paid</span></td>
+                  <td>
+                    <button class="btn btn-sm btn-info"><i class="fas fa-file-invoice"></i></button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>E005</td>
+                  <td>Robert Brown</td>
+                  <td>05/01/2025</td>
+                  <td>Bank Transfer</td>
+                  <td>$4,200</td>
+                  <td><span class="badge badge-success">Paid</span></td>
+                  <td>
+                    <button class="btn btn-sm btn-info"><i class="fas fa-file-invoice"></i></button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+                
+        <div class="tab-pane fade" id="history" role="tabpanel">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th>Year</th>
+                  <th>Total Employees</th>
+                  <th>Total Amount</th>
+                  <th>Process Date</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>April</td>
+                  <td>2025</td>
+                  <td>52</td>
+                  <td>$85,300</td>
+                  <td>04/01/2025</td>
+                  <td><span class="badge badge-success">Completed</span></td>
+                  <td>
+                    <button class="btn btn-sm btn-info"><i class="fas fa-file-invoice"></i></button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>March</td>
+                  <td>2025</td>
+                  <td>50</td>
+                  <td>$82,100</td>
+                  <td>03/01/2025</td>
+                  <td><span class="badge badge-success">Completed</span></td>
+                  <td>
+                    <button class="btn btn-sm btn-info"><i class="fas fa-file-invoice"></i></button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>February</td>
+                  <td>2025</td>
+                  <td>48</td>
+                  <td>$79,200</td>
+                  <td>02/01/2025</td>
+                  <td><span class="badge badge-success">Completed</span></td>
+                  <td>
+                    <button class="btn btn-sm btn-info"><i class="fas fa-file-invoice"></i></button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/js/bootstrap.min.js"></script>
-    <script>
-        // ---------Responsive-navbar-active-animation-----------
-        function test() {
-            var tabsNewAnim = $('#navbarSupportedContent');
-            var selectorNewAnim = $('#navbarSupportedContent').find('li').length;
-            var activeItemNewAnim = tabsNewAnim.find('.active');
-            var activeWidthNewAnimHeight = activeItemNewAnim.innerHeight();
-            var activeWidthNewAnimWidth = activeItemNewAnim.innerWidth();
-            var itemPosNewAnimTop = activeItemNewAnim.position();
-            var itemPosNewAnimLeft = activeItemNewAnim.position();
-            
-            $(".hori-selector").css({
-                "top": itemPosNewAnimTop.top + "px",
-                "left": itemPosNewAnimLeft.left + "px",
-                "height": activeWidthNewAnimHeight + "px",
-                "width": activeWidthNewAnimWidth + "px"
-            });
-            
-            $("#navbarSupportedContent").on("click", "li", function (e) {
-                $('#navbarSupportedContent ul li').removeClass("active");
-                $(this).addClass('active');
-                var activeWidthNewAnimHeight = $(this).innerHeight();
-                var activeWidthNewAnimWidth = $(this).innerWidth();
-                var itemPosNewAnimTop = $(this).position();
-                var itemPosNewAnimLeft = $(this).position();
-                
-                $(".hori-selector").css({
-                    "top": itemPosNewAnimTop.top + "px",
-                    "left": itemPosNewAnimLeft.left + "px",
-                    "height": activeWidthNewAnimHeight + "px",
-                    "width": activeWidthNewAnimWidth + "px"
-                });
-            });
-        }
-        
-        $(document).ready(function () {
-            setTimeout(function () {
-                test();
-            });
-        });
-        
-        $(window).on('resize', function () {
-            setTimeout(function () {
-                test();
-            }, 500);
-        });
-        
-        $(".navbar-toggler").click(function () {
-            $(".navbar-collapse").slideToggle(300);
-            setTimeout(function () {
-                test();
-            });
-        });
-
-        // Hide all content sections initially
-$(document).ready(function() {
-    // Hide the default content
-    $(".content").hide();
-    // Show only employee records content since it's active
-    $("#employeeRecordsContent").show();
-    
-    // Handle menu item clicks
-    $("#navbarSupportedContent li").click(function() {
-        var navText = $(this).find("a").text();
-        
-        // Hide all content sections
-        $(".content, #employeeRecordsContent, #attendanceContent").hide();
-        
-        // Show appropriate content based on clicked item
-        if(navText.includes("Employee Records")) {
-            $("#employeeRecordsContent").show();
-        } else if(navText.includes("Attendance")) {
-        $("#attendanceContent").show();
-    } else {
-        // For other menu items, show the default content
-        $(".content").show();
-    }
-});
-
-// Handle attendance report generation
-$("#generateAttendanceReport").click(function() {
-    var selectedDate = $("#attendanceDate").val();
-    alert("Generating attendance report for: " + selectedDate);
-});
-    
-    // Handle generate employee button click
-    $("#generateEmployeeBtn").click(function() {
-        alert("Generate employee account functionality will be implemented here!");
-    });
-});
-    </script>
+    <script src="{% static 'payroll_app/js/Admin_script.js' %}"></script>
 </body>
 </html>
