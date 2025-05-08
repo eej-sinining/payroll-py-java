@@ -37,79 +37,59 @@
                 <li class="nav-item">
                     <a class="nav-link" href="javascript:void(0);"><i class="fas fa-dollar-sign"></i>Payroll</a>
                 </li> 
-                <li class="nav-item">
-                    <a class="nav-link" href="javascript:void(0);"><i class="fas fa-tachometer-alt"></i>Log - out</a>
-                </li>              
+                        
                 
             </ul>
         </div>
     </nav>
 
      <!-- Employee Content -->
-    <div class="container mt-4" id="employeeRecordsContent">
-        <div class="row">
-          <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="container mt-4" id="employeeRecordsContent">
+  <div class="row">
+      <div class="col-12">
+          <div class="d-flex justify-content-between align-items-center mb-4">
               <h3>Employee Records</h3>
               <button class="btn btn-danger" id="generateEmployeeBtn">Generate Employee Account</button>
-            </div>
-            
-            <div class="table-responsive">
-              <table class="table table-striped">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Position</th>
-                    <th>Department</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>E001</td>
-                    <td>John Doe</td>
-                    <td>Software Engineer</td>
-                    <td>IT</td>
-                    <td>john.doe@company.com</td>
-                    <td>(555) 123-4567</td>
-                    <td>
-                      <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
-                      <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>E002</td>
-                    <td>Jane Smith</td>
-                    <td>HR Manager</td>
-                    <td>Human Resources</td>
-                    <td>jane.smith@company.com</td>
-                    <td>(555) 987-6543</td>
-                    <td>
-                      <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
-                      <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>E003</td>
-                    <td>Michael Johnson</td>
-                    <td>Sales Executive</td>
-                    <td>Sales</td>
-                    <td>michael.j@company.com</td>
-                    <td>(555) 456-7890</td>
-                    <td>
-                      <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
-                      <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
           </div>
-        </div>
+          
+          <div class="table-responsive">
+              <table class="table table-striped">
+                  <thead>
+                      <tr>
+                          <th>ID</th>
+                          <th>Name</th>
+                          <th>Position</th>
+                          <th>Hourly Rate</th>
+                          <th>Standard Hours</th>
+                          <th>Contact</th>
+                          <th>Actions</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      {% for employee in employees %}
+                      <tr>
+                          <td>E{{ employee.id|stringformat:"03d" }}</td>
+                          <td>{{ employee.first_name }} {{ employee.last_name }}</td>
+                          <td>{{ employee.get_position_display }}</td>
+                          <td>₱ {{ employee.hourly_rate }}</td>
+                          <td>{{ employee.standard_hours }}</td>
+                          <td>{{ employee.contact }}</td>
+                          <td>
+                              <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                              <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                          </td>
+                      </tr>
+                      {% empty %}
+                      <tr>
+                          <td colspan="7" class="text-center">No employees found</td>
+                      </tr>
+                      {% endfor %}
+                  </tbody>
+              </table>
+          </div>
       </div>
+  </div>
+</div>
 
 
      <!-- Attendance Content -->
@@ -172,7 +152,7 @@
               <tr>
                 <th>ID</th>
                 <th>Name</th>
-                <th>Department</th>
+                <th>Position</th>
                 <th>Clock In</th>
                 <th>Clock Out</th>
                 <th>Status</th>
@@ -334,11 +314,6 @@
               <th>ID</th>
               <th>Designation</th>
               <th>Base Salary</th>
-              <th>HRA</th>
-              <th>Medical</th>
-              <th>Transport</th>
-              <th>Deductions</th>
-              <th>Net Salary</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -347,11 +322,6 @@
               <td>S001</td>
               <td>Software Engineer</td>
               <td>$5,000</td>
-              <td>$1,000</td>
-              <td>$500</td>
-              <td>$300</td>
-              <td>$800</td>
-              <td>$6,000</td>
               <td>
                 <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
                 <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
@@ -361,11 +331,6 @@
               <td>S002</td>
               <td>HR Manager</td>
               <td>$4,500</td>
-              <td>$900</td>
-              <td>$500</td>
-              <td>$300</td>
-              <td>$700</td>
-              <td>$5,500</td>
               <td>
                 <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
                 <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
@@ -375,11 +340,6 @@
               <td>S003</td>
               <td>Sales Executive</td>
               <td>$3,500</td>
-              <td>$700</td>
-              <td>$400</td>
-              <td>$250</td>
-              <td>$550</td>
-              <td>$4,300</td>
               <td>
                 <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
                 <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
@@ -389,11 +349,6 @@
               <td>S004</td>
               <td>Marketing Manager</td>
               <td>$4,000</td>
-              <td>$800</td>
-              <td>$500</td>
-              <td>$300</td>
-              <td>$650</td>
-              <td>$4,950</td>
               <td>
                 <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
                 <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
