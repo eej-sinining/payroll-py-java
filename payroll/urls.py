@@ -25,5 +25,14 @@ urlpatterns = [
     path('admin', admin.site.urls),
     path('', views.homepage, name='home'),
     path('home/', views.homepage, name='home'),
+<<<<<<< HEAD
     path('super', views.employee_records),
 ] 
+=======
+<<<<<<< HEAD
+    path('run-java-payroll/', views.run_service_java),
+]
+=======
+] 
+>>>>>>> 7ad9fd606fffea0821edbc7d37ba895fc20046c0
+>>>>>>> eb0581bbd4fe90531293b1902b95f12d088c4b40
