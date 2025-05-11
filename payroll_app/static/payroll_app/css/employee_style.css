@@ -17,9 +17,9 @@ li {
 :root {
 	--poppins: 'Poppins', sans-serif;
 	--lato: 'Lato', sans-serif;
-
+    --lightgrey: #3b3c42;
 	--light: #F9F9F9;
-	--blue: #3C91E6;
+	--blue: #e8716d;
 	--light-blue: #CFE8FF;
 	--grey: #eee;
 	--dark-grey: #AAAAAA;
@@ -57,7 +57,7 @@ body {
 	left: 0;
 	width: 220px;
 	height: 100%;
-	background: var(--light);
+	background: var(--lightgrey);
 	z-index: 2000;
 	font-family: var(--lato);
 	transition: .3s ease;
@@ -80,7 +80,7 @@ body {
 	position: sticky;
 	top: 0;
 	left: 0;
-	background: var(--light);
+	background: var(--lightgrey);
 	z-index: 500;
 	padding-bottom: 20px;
 	box-sizing: content-box;
@@ -133,6 +133,7 @@ body {
 	background: var(--light);
 	display: flex;
 	align-items: center;
+	column-gap : 16px;
 	border-radius: 48px;
 	font-size: 16px;
 	color: var(--dark);
@@ -194,7 +195,7 @@ body {
 /* NAVBAR */
 #content nav {
 	height: 56px;
-	background: var(--light);
+	background: var(--lightgrey);
 	padding: 0 24px;
 	display: flex;
 	align-items: center;
@@ -216,11 +217,11 @@ body {
 	box-shadow: -20px -20px 0 var(--light);
 }
 #content nav a {
-	color: var(--dark);
+	color: var(--blue);
 }
 #content nav .bx.bx-menu {
 	cursor: pointer;
-	color: var(--dark);
+	color: var(--blue);
 }
 #content nav .nav-link {
 	font-size: 16px;
