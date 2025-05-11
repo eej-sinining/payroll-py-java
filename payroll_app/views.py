@@ -7,6 +7,8 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.http import HttpResponse
 from django.template import loader
+
+from payroll_project.payroll_app.models import Employee
 from .forms import loginForm
 from payroll_app.models import Employee
 from .forms import EmployeeForm 
