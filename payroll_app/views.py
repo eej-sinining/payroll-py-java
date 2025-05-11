@@ -1,4 +1,6 @@
 import re
+import subprocess
+import os
 from django import template
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render
@@ -34,7 +36,7 @@ def login_view(request):
 
         return render(request, 'payroll_app/home.html', {'form': form})
 
- # Or whichever page you want as default        
+# Or whichever page you want as default        
 
 def employee_records(request):
     employees = Employee.objects.all().order_by('id')
