@@ -81,20 +81,43 @@ $(".navbar-toggler").click(function () {
 // Handle attendance report generation
 $("#generateAttendanceReport").click(function() {
     var selectedDate = $("#attendanceDate").val();
-    alert("Generating attendance report for: " + selectedDate);
+    alert("Attendance ni Aybol: " + selectedDate);
 });
 
 // Handle generate employee button click
 $("#generateEmployeeBtn").click(function() {
-    alert("Generate employee account functionality will be implemented here!");
+    $('#employeeModal').modal('show');
+});
+
+// Handle form submission via AJAX
+$("#employeeForm").submit(function(e) {
+    e.preventDefault();
+    
+    $.ajax({
+        type: "POST",
+        url: $(this).attr('action'),
+        data: $(this).serialize(),
+        success: function(response) {
+            if(response.success) {
+                $('#employeeModal').modal('hide');                
+                location.reload();
+            } else {
+                alert("Error: " + response.error);
+            }
+        },
+        error: function(xhr, errmsg, err) {
+            alert("An error occurred while saving the employee.");
+            console.log(xhr.status + ": " + xhr.responseText);
+        }
+    });
 });
 
 // Handle salary structure button
 $("#addSalaryStructure").click(function() {
-    alert("Add salary structure functionality will be implemented here!");
+    alert("Salary ni Aybol");
 });
 
 // Handle process payroll button
 $("#processPayroll").click(function() {
-    alert("Payroll processing will be implemented here!");
+    alert("Payroll ni Aybol");
 });

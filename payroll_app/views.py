@@ -8,12 +8,9 @@ from django.contrib import messages
 from django.http import HttpResponse
 from django.template import loader
 from .forms import loginForm
-<<<<<<< HEAD
 from payroll_app.models import Employee
-=======
-import subprocess
-import os
->>>>>>> eb0581bbd4fe90531293b1902b95f12d088c4b40
+from .forms import EmployeeForm 
+from django.http import JsonResponse
 
 def homepage(request):
     return render(request, 'payroll_app/home.html')
@@ -34,16 +31,33 @@ def login_view(request):
                 form.add_error(None, 'Invalid Credentials')
 
         return render(request, 'payroll_app/home.html', {'form': form})
-<<<<<<< HEAD
+
  # Or whichever page you want as default        
 
 def employee_records(request):
     employees = Employee.objects.all().order_by('id')
-    print(list(employees))  # Debug output
-    return render(request, 'payroll_app/Admin.html', {'employees': employees})
-=======
-<<<<<<< HEAD
+    form = EmployeeForm()
+    return render(request, 'payroll_app/Admin.html', {
+        'employees': employees,
+        'employee_form': form
+    })
     
+def create_employee(request):
+    if request.method == 'POST':
+        try:
+            employee = Employee(
+                first_name=request.POST.get('first_name'),
+                last_name=request.POST.get('last_name'),
+                position=request.POST.get('position'),
+                hourly_rate=request.POST.get('hourly_rate'),
+                standard_hours=request.POST.get('standard_hours'),
+                contact=request.POST.get('contact')
+            )
+            employee.save()
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})    
 
 def run_service_java(request):
     java_folder = os.path.join(os.path.dirname(__file__), 'java_files')
@@ -80,7 +94,4 @@ def run_service_java(request):
 
     except Exception as e:
         return HttpResponse(f"Unexpected error: {str(e)}", status=500)
-=======
- # Or whichever page you want as default        
->>>>>>> 7ad9fd606fffea0821edbc7d37ba895fc20046c0
->>>>>>> eb0581bbd4fe90531293b1902b95f12d088c4b40
+
