@@ -25,6 +25,12 @@ urlpatterns = [
     path('admin', admin.site.urls),
     path('', views.homepage, name='home'),
     path('home/', views.homepage, name='home'),
-    path('run-java-payroll/', views.run_service_java),
-    path('super', views.employee_records),
-]
+    path('super/', views.employee_records),
+    path('create-employee/', views.create_employee, name='create_employee'),
+] 
+
+path('run-java-payroll/', views.run_service_java),
+
+
+
+

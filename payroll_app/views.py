@@ -10,9 +10,10 @@ from django.template import loader
 
 from payroll_project.payroll_app.models import Employee
 from .forms import loginForm
+from payroll_app.models import Employee
+from .forms import EmployeeForm 
+from django.http import JsonResponse
 
-import subprocess
-import os
 def homepage(request):
     return render(request, 'payroll_app/home.html')
 
@@ -33,11 +34,32 @@ def login_view(request):
 
         return render(request, 'payroll_app/home.html', {'form': form})
 
+ # Or whichever page you want as default        
+
 def employee_records(request):
     employees = Employee.objects.all().order_by('id')
-    print(list(employees))  # Debug output
-    return render(request, 'payroll_app/Admin.html', {'employees': employees})
-
+    form = EmployeeForm()
+    return render(request, 'payroll_app/Admin.html', {
+        'employees': employees,
+        'employee_form': form
+    })
+    
+def create_employee(request):
+    if request.method == 'POST':
+        try:
+            employee = Employee(
+                first_name=request.POST.get('first_name'),
+                last_name=request.POST.get('last_name'),
+                position=request.POST.get('position'),
+                hourly_rate=request.POST.get('hourly_rate'),
+                standard_hours=request.POST.get('standard_hours'),
+                contact=request.POST.get('contact')
+            )
+            employee.save()
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})    
 
 def run_service_java(request):
     java_folder = os.path.join(os.path.dirname(__file__), 'java_files')
