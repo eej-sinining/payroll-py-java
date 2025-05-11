@@ -1,19 +1,18 @@
 import re
-import subprocess
-import os
+import json
 from django import template
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.hashers import make_password
 from django.shortcuts import render
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.http import HttpResponse
 from django.template import loader
+from django.db import IntegrityError
 
-from payroll_project.payroll_app.models import Employee
-from .forms import loginForm
-from payroll_app.models import Employee
-from .forms import EmployeeForm 
+from .models import Employee, CustomUser
+from .forms import loginForm, EmployeeForm 
 from django.http import JsonResponse
 
 def homepage(request):
@@ -36,7 +35,7 @@ def login_view(request):
 
         return render(request, 'payroll_app/home.html', {'form': form})
 
-# Or whichever page you want as default        
+ # Or whichever page you want as default        
 
 def employee_records(request):
     employees = Employee.objects.all().order_by('id')
@@ -49,6 +48,7 @@ def employee_records(request):
 def create_employee(request):
     if request.method == 'POST':
         try:
+            # First create the Employee
             employee = Employee(
                 first_name=request.POST.get('first_name'),
                 last_name=request.POST.get('last_name'),
@@ -58,10 +58,30 @@ def create_employee(request):
                 contact=request.POST.get('contact')
             )
             employee.save()
+            
+            # Then create the CustomUser account
+            user = CustomUser.objects.create_user(
+                username=request.POST.get('username'),
+                password=request.POST.get('password'),
+                role='employee',  # or whatever default role you want
+                is_active=request.POST.get('is_active', 'off') == 'on',
+                employeeID=employee  # link the user to the employee
+            )
+            
             return JsonResponse({'success': True})
+        except IntegrityError as e:
+            # If employee was created but user creation failed, delete the employee
+            if 'employee' in locals():
+                employee.delete()
+            return JsonResponse({'success': False, 'error': 'Username already exists'})
         except Exception as e:
+            # Clean up if anything fails
+            if 'employee' in locals():
+                employee.delete()
+            if 'user' in locals():
+                user.delete()
             return JsonResponse({'success': False, 'error': str(e)})
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}) 
 
 def run_service_java(request):
     java_folder = os.path.join(os.path.dirname(__file__), 'java_files')
