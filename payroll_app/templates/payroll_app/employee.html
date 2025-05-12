@@ -7,160 +7,170 @@
 
 	<!-- Boxicons -->
 	<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-	<link href='https://unpkg.com/boxicons@2.1.4/dist/boxicons.js' rel='stylesheet'>
 
 	<!-- My CSS -->
 	<link rel="stylesheet" href="{% static 'payroll_app/css/employee_style.css' %}">
 
-	<title>Employee</title>
+	<title>Employee Dashboard</title>
 </head>
 <body>
+	
 	<!-- SIDEBAR -->
-	<section id="sidebar">
-		<a href="#" class="brand">
-			<i class='bx bxs-smile  bx-lg'></i>
-			<span class="text">Employee</span>
-		</a>
-		<ul class="side-menu top">
-			<li class="active">
-				<a href="#">
-					<i class='bx bxs-dashboard bx-sm' ></i>
-					<span class="text">Dashboard</span>
-				</a>
-			<li>
-				<a href="#">
-					<i class='bx bxs-doughnut-chart bx-sm' ></i>
-					<span class="text">Check In</span>
-				</a>
-			</li>
-			<li>
-				<a href="#">
-					<i class='bx bxs-cog bx-sm bx-spin-hover' ></i>
-					<span class="text">Settings</span>
-				</a>
-			</li>
-			<li>
-				<a href="#" class="logout">
-					<i class='bx bx-power-off bx-sm bx-burst-hover' ></i>
-					<span class="text">Logout</span>
-				</a>
-			</li>
+	<div id="sidebar">
+		<div id="spacer"></div>
+		<ul class="side-menu">
+			<li class="active"><a href="#" data-section="profileMenu"><i class="bx bx-user"></i> Profile</a></li>
+			<li><a href="#" data-section="reportsMenu"><i class="bx bx-file"></i> Reports</a></li>
+			<li><a href="#" data-section="attendanceMenu"><i class="bx bx-cog"></i> Attendance</a></li>
+			<li class="logout"><a href="#"><i class="bx bx-log-out"></i> Logout</a></li>
 		</ul>
-		<ul class="side-menu bottom">
-		
-		</ul>
-	</section>
-	<!-- SIDEBAR -->
+	</div>
 
+	<!-- MAIN CONTENT -->
+	<div id="content">
+		<nav>
+			<div>
+				<a href="#" class="bx bx-menu" id="menu-btn"></a>
+				<span>Dashboard</span>
+			</div>
+			<span>Welcome, Employee</span>
+		</nav>
 
-
-	<!-- CONTENT -->
-	<section id="content">
-		<!-- NAVBAR -->
-<nav>
-    <i class='bx bx-menu bx-sm' ></i>
-    <a href="#" class="nav-link">Categories</a>
-    <form action="#">
-        <div class="form-input">
-        </div>
-    </form>
-    <input type="checkbox" class="checkbox" id="switch-mode" hidden />
-
-    <!-- Profile Menu -->
-    <a href="#" class="profile" id="profileIcon">
-        <img src="https://placehold.co/600x400/png" alt="Profile">
-    </a>
-    <div class="profile-menu" id="profileMenu">
-        <ul>
-            <li><a href="#">My Profile</a></li>
-            <li><a href="#">Settings</a></li>
-            <li><a href="#">Log Out</a></li>
-        </ul>
-    </div>
-</nav>
-<!-- NAVBAR -->
-
-
-		<!-- MAIN -->
-		<main id="dashboard">
-			<div class="head-title">
-				<div class="left">
-					<h1>Welcome,(InsertFullName)! Here's a summary of your payroll info.</h1>
-
-			<ul class="box-info">
-				<li>
-					<i class='bx bxs-group' ></i>
-					<span class="text">
-						<h3>(InsertFullName)</h3>
-						<p>(InsertPositionandDepartment)</p>
-					</span>
-				</li>
-				<li>
-					<i class='bx bxs-time'></i>
-					<span class="text">
-    					<button type="button">Time In</button>
-						<button type="button">Time Out</button>
-					</span>
-				</li>
-			</ul>
-<div class="time-controls">
-  <button class="time-in-btn">
-    <i class='bx bxs-log-in'></i> Time In
-  </button>
-  <button class="time-out-btn">
-    <i class='bx bxs-log-out'></i> Time Out
-  </button>
-</div>
-
-<style>
-.time-controls {
-  display: flex;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.time-in-btn {
-  background: #4CAF50;
-  color: white;
-  padding: 8px 16px;
-}
-
-.time-out-btn {
-  background: #f44336;
-  color: white;
-  padding: 8px 16px;
-}
-</style>
-
-			<div class="table-data">
-				<div class="order">
-					<div class="head">
-						<h3>Attendance:</h3>
+		<main id="mainContent">
+			<!-- Profile Section -->
+			<div id="profileMenu" class="content-section">
+				<div class="head-title">
+					<div class="left">
+						<h1>Profile Dashboard</h1>
+					</div>
+				</div>
+				<div id="spacer"></div>
+				<div class="box-info">
+					<div class="box-item">
+						<i class="bx bx-user"></i>
+						<div class="text">
+							<h3>Profile</h3>
+							<p>View and edit your profile details.</p>
 						</div>
-							<table>
-								  <tr>
-   									 <th>Date</th>
-  									  <th>Time-in</th>
-    									<th>Time-out</th>
- 									 </tr>
- 									 <tr>
-   										 <td>2025-05-12</td>
-    									<td>08:00 AM</td>
-    									<td>05:00 PM</td>
- 									 </tr>
-							</table>
-					<ul class="todo-list">
+					</div>
+					<div class="box-item">
+						<i class="bx bx-calendar"></i>
+						<div class="text">
+							<h3>Attendance</h3>
+							<p>Track your attendance records.</p>
+						</div>
+					</div>
+					<div class="box-item">
+						<i class="bx bx-wallet"></i>
+						<div class="text">
+							<h3>Payroll</h3>
+							<p>View your salary details and payment history.</p>
+						</div>
+					</div>
+				</div>
+			</div>
 
+			<!-- Reports Section -->
+			<div id="reportsMenu" class="content-section" style="display: none;">
+				<div class="head-title">
+					<div class="left">
+						<h1>Payroll History</h1>
+					</div>
+				</div>
 
-					</ul>
+				<div class="report-info">
+					<table class="report-table">
+						<thead>
+							<tr>
+								<th>Pay Period</th>
+								<th>Basic Pay</th>
+								<th>Deductions</th>
+								<th>Net Pay</t>
+								<th>Receipt</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>April 16–30, 2025</td>
+								<td>₱15,000</td>
+								<td>₱2,000</td>
+								<td>₱13,000</td>
+								<td><a href="#" class="btn-view">View</a></t>
+							</tr>
+							<tr>
+								<td>May 1–15, 2025</td>
+								<td>₱15,000</td>
+								<td>₱1,800</td>
+								<td>₱13,200</td>
+								<td><a href="#" class="btn-view">View</a></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<!-- Attendance Section -->
+			<div id="attendanceMenu" class="content-section" style="display: none;">
+				<div class="head-title">
+					<div class="left">
+						<h1>Attendance</h1>
+					</div>
+				</div>
+				<div class="btns">
+					<button class="Time-in">Time-in</button>
+					<button class="Time-out">Time-out</button>
+				</div>
+				<div>
+					<table>
+						<tr>
+							<th>Date</th>
+							<th>Time - in</th>
+							<th>Time - out</th>
+						</tr>
+						<tr>
+							<td>01/01/2023</td>
+							<td>8:00 AM</td>
+							<td>5:00 PM</td>
+						</tr>
+					</table>
 				</div>
 			</div>
 		</main>
-		<!-- MAIN -->
-	</section>
-	<!-- CONTENT -->
-	
+	</div>
 
-	<script src="{% static 'payroll_app/js/employee_script.js' %}"></script>
+	<!-- JavaScript -->
+	<script>
+		// Sidebar toggle
+		let sidebar = document.getElementById("sidebar");
+		let sidebarBtn = document.getElementById("menu-btn");
+
+		sidebarBtn.addEventListener("click", () => {
+			sidebar.classList.toggle("hide");
+			document.getElementById("content").classList.toggle("shift");
+		});
+
+		// Content switch logic
+		const links = document.querySelectorAll(".side-menu a[data-section]");
+		const sections = document.querySelectorAll(".content-section");
+
+		links.forEach(link => {
+			link.addEventListener("click", (e) => {
+				e.preventDefault();
+
+				// Remove active class
+				document.querySelectorAll(".side-menu li").forEach(li => li.classList.remove("active"));
+
+				// Set active class on clicked
+				link.parentElement.classList.add("active");
+
+				// Hide all sections
+				sections.forEach(section => section.style.display = "none");
+
+				// Show selected section
+				const targetId = link.getAttribute("data-section");
+				document.getElementById(targetId).style.display = "block";
+			});
+		});
+	</script>
 </body>
 </html>
