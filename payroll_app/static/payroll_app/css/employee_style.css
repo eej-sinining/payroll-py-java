@@ -41,7 +41,6 @@ a {
 #sidebar .side-menu {
 	margin-top: 20px;
 }
-
 #sidebar .side-menu li {
 	padding: 10px 20px;
 }
@@ -151,6 +150,25 @@ main {
 		font-size: 24px;
 	}
 }
+nav .nav-left {
+	display: flex;
+	align-items: center;
+	gap: 10px; 
+}
+
+#menu-btn {
+	font-size: 30px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+}
+
+.nav-title , span{
+	font-size: 18px;
+	font-weight: 600;
+	color: #333;
+}
+
 
 /* Attendance Section Styling */
 #attendanceMenu {
