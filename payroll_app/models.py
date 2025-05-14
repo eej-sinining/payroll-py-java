@@ -1,33 +1,41 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
-class Employee(models.Model):
-    POSITION_CHOICES = [
-        ('mayor', 'Mayor'),
-        ('vice mayor', 'Vice Mayor'),
-        ('councilor', 'Councilor'),
-        ('department head', 'Department Head'),
-        ('clerk', 'Clerk'),
-        ('treasurer', 'treasurer'),
-        ('assessor', 'Assessor'),
-        ('pro', 'Pro'), #public relation officer
-        ('legal officer', 'Legal Officer'), #city attorney
-        ('hr', 'HR'), #human resources
-        ('pm', 'PM'), #Project Manager
-        ('staff', 'Staff'),
-        ('driver', 'Driver'),
-        ('utility', 'Utility'),
 
-    ]
+class Position(models.Model):
+    name = models.CharField(max_length=30, unique=True)
+    standard_hours = models.IntegerField(default=1) 
+    base_salary = models.DecimalField(max_digits=10, decimal_places=2)
+    bonus = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    deduction = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    
+    # Additional fields you might want
+    description = models.TextField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    
+    class Meta:
+        ordering = ['name']
+    
+    def __str__(self):
+        return self.name
+
+class Employee(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
-    position = models.CharField(max_length=30, choices=POSITION_CHOICES)  # Increased max_length
+    position = models.ForeignKey(Position, on_delete=models.SET_NULL, null=True)
     hourly_rate = models.DecimalField(max_digits=10, decimal_places=2)
-    standard_hours = models.IntegerField()
     contact = models.CharField(max_length=20)
-
+    
+    # You might want to add these fields for flexibility
+    is_active = models.BooleanField(default=True)
+    date_hired = models.DateField(null=True, blank=True)
+    
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
+
+    @property
+    def position_name(self):
+        return self.position.name if self.position else "No Position"
 
 class Payroll(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
