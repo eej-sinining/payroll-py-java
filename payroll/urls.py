@@ -30,7 +30,3 @@ urlpatterns = [
 ] 
 
 path('run-java-payroll/', views.run_service_java),
-
-
-
-

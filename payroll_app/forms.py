@@ -105,6 +105,23 @@ class EmployeeForm(forms.ModelForm):
     #                 employeeID=employee
     #             )
     #         return employee
+    def save(self, commit=True):
+        """Create Employee and associated CustomUser atomically."""
+        with transaction.atomic():
+            employee = super().save(commit=False)
+
+        # Save employee if committing
+        if commit:
+            employee.save()
+            CustomUser.objects.create_user(
+                username=self.cleaned_data.get('username'),
+                password=self.cleaned_data.get('password'),
+                is_active=self.cleaned_data.get('is_active', True),
+                role='employee',
+                employeeID=employee
+            )
+
+        return employee
 
 
 class LoginForm(forms.Form):
