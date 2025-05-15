@@ -2,165 +2,307 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-	<!-- Boxicons -->
-	<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-	<link href='https://unpkg.com/boxicons@2.1.4/dist/boxicons.js' rel='stylesheet'>
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href='https://unpkg.com/boxicons@2.1.4/dist/boxicons.js' rel='stylesheet'>
 
-	<!-- My CSS -->
-	<link rel="stylesheet" href="{% static 'payroll_app/css/employee_style.css' %}">
+    <!-- My CSS -->
+    <link rel="stylesheet" href="{% static 'payroll_app/css/employee_style.css' %}">
 
-	<title>Employee</title>
+    <title>Employee</title>
+    <style>
+        .time-controls {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .time-btn {
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .time-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .time-in-btn {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .time-in-btn:hover:not(:disabled) {
+            background: #3e8e41;
+        }
+
+        .time-out-btn {
+            background: #f44336;
+            color: white;
+        }
+
+        .time-out-btn:hover:not(:disabled) {
+            background: #d32f2f;
+        }
+
+        .time-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .time-in-status {
+            background: #dff0d8;
+            color: #3c763d;
+        }
+
+        .time-out-status {
+            background: #f2dede;
+            color: #a94442;
+        }
+
+        /* Pulse animation for active button */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
 </head>
 <body>
-	<!-- SIDEBAR -->
-	<section id="sidebar">
-		<a href="#" class="brand">
-			<i class='bx bxs-smile  bx-lg'></i>
-			<span class="text">Employee</span>
-		</a>
-		<ul class="side-menu top">
-			<li class="active">
-				<a href="#">
-					<i class='bx bxs-dashboard bx-sm' ></i>
-					<span class="text">Dashboard</span>
-				</a>
-			<li>
-				<a href="#">
-					<i class='bx bxs-doughnut-chart bx-sm' ></i>
-					<span class="text">Check In</span>
-				</a>
-			</li>
-			<li>
-				<a href="#">
-					<i class='bx bxs-cog bx-sm bx-spin-hover' ></i>
-					<span class="text">Settings</span>
-				</a>
-			</li>
-			<li>
-				<a href="#" class="logout">
-					<i class='bx bx-power-off bx-sm bx-burst-hover' ></i>
-					<span class="text">Logout</span>
-				</a>
-			</li>
-		</ul>
-		<ul class="side-menu bottom">
-		
-		</ul>
-	</section>
-	<!-- SIDEBAR -->
-
-
-
-	<!-- CONTENT -->
-	<section id="content">
-		<!-- NAVBAR -->
-<nav>
-    <i class='bx bx-menu bx-sm' ></i>
-    <a href="#" class="nav-link">Categories</a>
-    <form action="#">
-        <div class="form-input">
-        </div>
-    </form>
-    <input type="checkbox" class="checkbox" id="switch-mode" hidden />
-
-    <!-- Profile Menu -->
-    <a href="#" class="profile" id="profileIcon">
-        <img src="https://placehold.co/600x400/png" alt="Profile">
-    </a>
-    <div class="profile-menu" id="profileMenu">
-        <ul>
-            <li><a href="#">My Profile</a></li>
-            <li><a href="#">Settings</a></li>
-            <li><a href="#">Log Out</a></li>
+    <!-- SIDEBAR -->
+    <section id="sidebar">
+        <a href="#" class="brand">
+            <i class='bx bxs-smile  bx-lg'></i>
+            <span class="text">Employee</span>
+        </a>
+        <ul class="side-menu top">
+            <li class="active">
+                <a href="#">
+                    <i class='bx bxs-dashboard bx-sm' ></i>
+                    <span class="text">Dashboard</span>
+                </a>
+            <li>
+                <a href="#">
+                    <i class='bx bxs-doughnut-chart bx-sm' ></i>
+                    <span class="text">Check In</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class='bx bxs-cog bx-sm bx-spin-hover' ></i>
+                    <span class="text">Settings</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" class="logout">
+                    <i class='bx bx-power-off bx-sm bx-burst-hover' ></i>
+                    <span class="text">Logout</span>
+                </a>
+            </li>
         </ul>
-    </div>
-</nav>
-<!-- NAVBAR -->
+        <ul class="side-menu bottom">
+        
+        </ul>
+    </section>
+    <!-- SIDEBAR -->
 
+    <!-- CONTENT -->
+    <section id="content">
+        <!-- NAVBAR -->
+        <nav>
+            <i class='bx bx-menu bx-sm' ></i>
+            <a href="#" class="nav-link">Categories</a>
+            <form action="#">
+                <div class="form-input">
+                </div>
+            </form>
+            <input type="checkbox" class="checkbox" id="switch-mode" hidden />
 
-		<!-- MAIN -->
-		<main id="dashboard">
-			<div class="head-title">
-				<div class="left">
-					<h1>Welcome,(InsertFullName)! Here's a summary of your payroll info.</h1>
+            <!-- Profile Menu -->
+            <a href="#" class="profile" id="profileIcon">
+                <img src="https://placehold.co/600x400/png" alt="Profile">
+            </a>
+            <div class="profile-menu" id="profileMenu">
+                <ul>
+                    <li><a href="#">My Profile</a></li>
+                    <li><a href="#">Settings</a></li>
+                    <li><a href="#">Log Out</a></li>
+                </ul>
+            </div>
+        </nav>
+        <!-- NAVBAR -->
 
-			<ul class="box-info">
-				<li>
-					<i class='bx bxs-group' ></i>
-					<span class="text">
-						<h3>(InsertFullName)</h3>
-						<p>(InsertPositionandDepartment)</p>
-					</span>
-				</li>
-				<li>
-					<i class='bx bxs-time'></i>
-					<span class="text">
-    					<button type="button">Time In</button>
-						<button type="button">Time Out</button>
-					</span>
-				</li>
-			</ul>
-<div class="time-controls">
-  <button class="time-in-btn">
-    <i class='bx bxs-log-in'></i> Time In
-  </button>
-  <button class="time-out-btn">
-    <i class='bx bxs-log-out'></i> Time Out
-  </button>
-</div>
+        <!-- MAIN -->
+        <main id="dashboard">
+            <div class="head-title">
+                <div class="left">
+                    <h1>Welcome,(InsertFullName)! Here's a summary of your payroll info.</h1>
 
-<style>
-.time-controls {
-  display: flex;
-  gap: 10px;
-  margin-top: 20px;
-}
+            <ul class="box-info">
+                <li>
+                    <i class='bx bxs-group' ></i>
+                    <span class="text">
+                        <h3>(InsertFullName)</h3>
+                        <p>(InsertPositionandDepartment)</p>
+                    </span>
+                </li>
+                <li>
+                    <i class='bx bxs-time'></i>
+                    <span class="text">
+                        <div class="time-controls">
+                            <button class="time-btn time-in-btn" id="timeInBtn">
+                                <i class='bx bxs-log-in'></i> Time In
+                            </button>
+                            <button class="time-btn time-out-btn" id="timeOutBtn" disabled>
+                                <i class='bx bxs-log-out'></i> Time Out
+                            </button>
+                        </div>
+                        <div class="time-status time-in-status" id="timeInStatus">
+                            You timed in at <span id="timeInValue"></span>
+                        </div>
+                        <div class="time-status time-out-status" id="timeOutStatus">
+                            You timed out at <span id="timeOutValue"></span>
+                        </div>
+                    </span>
+                </li>
+            </ul>
 
-.time-in-btn {
-  background: #4CAF50;
-  color: white;
-  padding: 8px 16px;
-}
+            <div class="table-data">
+                <div class="order">
+                    <div class="head">
+                        <h3>Attendance:</h3>
+                        </div>
+                            <table>
+                                  <thead>
+                                      <tr>
+                                         <th>Date</th>
+                                        <th>Time-in</th>
+                                        <th>Time-out</th>
+                                     </tr>
+                                  </thead>
+                                  <tbody id="attendanceTable">
+                                     <tr>
+                                     </tr>
+                            </tbody>
+                            </table>
+                    <ul class="todo-list">
+                    </ul>
+                </div>
+            </div>
+        </main>
+        <!-- MAIN -->
+    </section>
+    <!-- CONTENT -->
+    
 
-.time-out-btn {
-  background: #f44336;
-  color: white;
-  padding: 8px 16px;
-}
-</style>
-
-			<div class="table-data">
-				<div class="order">
-					<div class="head">
-						<h3>Attendance:</h3>
-						</div>
-							<table>
-								  <tr>
-   									 <th>Date</th>
-  									  <th>Time-in</th>
-    									<th>Time-out</th>
- 									 </tr>
- 									 <tr>
-   										 <td>2025-05-12</td>
-    									<td>08:00 AM</td>
-    									<td>05:00 PM</td>
- 									 </tr>
-							</table>
-					<ul class="todo-list">
-
-
-					</ul>
-				</div>
-			</div>
-		</main>
-		<!-- MAIN -->
-	</section>
-	<!-- CONTENT -->
-	
-
-	<script src="{% static 'payroll_app/js/employee_script.js' %}"></script>
+    <script src="{% static 'payroll_app/js/employee_script.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get elements
+            const timeInBtn = document.getElementById('timeInBtn');
+            const timeOutBtn = document.getElementById('timeOutBtn');
+            const timeInStatus = document.getElementById('timeInStatus');
+            const timeOutStatus = document.getElementById('timeOutStatus');
+            const timeInValue = document.getElementById('timeInValue');
+            const timeOutValue = document.getElementById('timeOutValue');
+            const attendanceTable = document.getElementById('attendanceTable');
+            
+            // Check if user is already timed in (you would typically check this from server)
+            let isTimedIn = false;
+            
+            // Time In Button Click
+            timeInBtn.addEventListener('click', function() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const dateString = now.toLocaleDateString();
+                
+                // Update UI
+                timeInValue.textContent = timeString;
+                timeInStatus.style.display = 'block';
+                timeOutStatus.style.display = 'none';
+                
+                // Enable Time Out button
+                timeOutBtn.disabled = false;
+                timeInBtn.disabled = true;
+                
+                // Add pulse animation to Time Out button
+                timeOutBtn.classList.add('pulse');
+                
+                // Add to attendance table
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td>${dateString}</td>
+                    <td>${timeString}</td>
+                    <td>--:-- --</td>
+                `;
+                attendanceTable.insertBefore(newRow, attendanceTable.firstChild);
+                
+                // In a real app, you would send this to the server
+                console.log(`Time In recorded at ${timeString}`);
+            });
+            
+            // Time Out Button Click
+            timeOutBtn.addEventListener('click', function() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                // Update UI
+                timeOutValue.textContent = timeString;
+                timeOutStatus.style.display = 'block';
+                
+                // Enable Time In button
+                timeOutBtn.disabled = true;
+                timeInBtn.disabled = false;
+                
+                // Remove pulse animation
+                timeOutBtn.classList.remove('pulse');
+                
+                // Update the most recent attendance record
+                const rows = attendanceTable.getElementsByTagName('tr');
+                if (rows.length > 0) {
+                    const latestRow = rows[0];
+                    const timeOutCell = latestRow.cells[2];
+                    if (timeOutCell.textContent === '--:-- --') {
+                        timeOutCell.textContent = timeString;
+                    }
+                }
+                
+                // In a real app, you would send this to the server
+                console.log(`Time Out recorded at ${timeString}`);
+            });
+            
+            // Profile menu toggle
+            const profileIcon = document.getElementById('profileIcon');
+            const profileMenu = document.getElementById('profileMenu');
+            
+            profileIcon.addEventListener('click', function(e) {
+                e.preventDefault();
+                profileMenu.style.display = profileMenu.style.display === 'block' ? 'none' : 'block';
+            });
+            
+            // Close profile menu when clicking elsewhere
+            document.addEventListener('click', function(e) {
+                if (!profileIcon.contains(e.target) && !profileMenu.contains(e.target)) {
+                    profileMenu.style.display = 'none';
+                }
+            });
+        });
+    </script>
 </body>
 </html>
