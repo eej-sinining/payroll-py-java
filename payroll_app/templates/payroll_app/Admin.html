@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Responsive Navbar with Animation</title>
+    <title>Admin Page</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/css/bootstrap.min.css">
@@ -37,210 +37,266 @@
                 <li class="nav-item">
                     <a class="nav-link" href="javascript:void(0);"><i class="fas fa-dollar-sign"></i>Payroll</a>
                 </li> 
-                <li class="nav-item">
-                    <a class="nav-link" href="javascript:void(0);"><i class="fas fa-tachometer-alt"></i>Log - out</a>
-                </li>              
+                        
                 
             </ul>
         </div>
     </nav>
 
-     <!-- Employee Content -->
-    <div class="container mt-4" id="employeeRecordsContent">
-        <div class="row">
-          <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-              <h3>Employee Records</h3>
-              <button class="btn btn-danger" id="generateEmployeeBtn">Generate Employee Account</button>
-            </div>
-            
-            <div class="table-responsive">
-              <table class="table table-striped">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Position</th>
-                    <th>Department</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>E001</td>
-                    <td>John Doe</td>
-                    <td>Software Engineer</td>
-                    <td>IT</td>
-                    <td>john.doe@company.com</td>
-                    <td>(555) 123-4567</td>
-                    <td>
-                      <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
-                      <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>E002</td>
-                    <td>Jane Smith</td>
-                    <td>HR Manager</td>
-                    <td>Human Resources</td>
-                    <td>jane.smith@company.com</td>
-                    <td>(555) 987-6543</td>
-                    <td>
-                      <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
-                      <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>E003</td>
-                    <td>Michael Johnson</td>
-                    <td>Sales Executive</td>
-                    <td>Sales</td>
-                    <td>michael.j@company.com</td>
-                    <td>(555) 456-7890</td>
-                    <td>
-                      <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
-                      <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-
-
-     <!-- Attendance Content -->
-<div class="container mt-4" id="attendanceContent" style="display: none;">
-    <div class="row">
+    <!-- Employee Content -->
+<div class="container mt-4" id="employeeRecordsContent">
+  <div class="row">
       <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <h3>Employee Attendance</h3>
-          <div>
-            <input type="date" class="form-control d-inline-block" style="width: auto;" id="attendanceDate" value="2025-05-01">
-            <button class="btn btn-danger ml-2" id="generateAttendanceReport">Generate Report</button>
+          <div class="d-flex justify-content-between align-items-center mb-4">
+              <h3>Employee Records</h3>
+              <button class="btn btn-danger" id="generateEmployeeBtn" data-bs-toggle="modal" data-bs-target="#employeeModal">
+                  <i class="fas fa-plus me-2"></i>Add New Employee
+              </button>
           </div>
-        </div>
-        
-        <div class="card mb-4">
-          <div class="card-header bg-light">
-            <h5 class="mb-0">Today's Summary</h5>
+          
+          <div class="table-responsive">
+              <table class="table table-striped">
+                  <thead>
+                      <tr>
+                          <th>ID</th>
+                          <th>Name</th>
+                          <th>Position</th>
+                          <th>Base Salary</th>
+                          <th>Standard Hours</th>
+                          <th>Status</th>
+                          <th>Contact</th>
+                          <th>Actions</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      {% for employee in employees %}
+                      <tr>
+                          <td>E{{ employee.id|stringformat:"03d" }}</td>
+                          <td>{{ employee.first_name }} {{ employee.last_name }}</td>
+                          <td>
+                              {% if employee.position %}
+                                  {{ employee.position.name }}
+                              {% else %}
+                                  <span class="text-muted">No Position</span>
+                              {% endif %}
+                          </td>
+                          <td>
+                              {% if employee.position %}
+                                  ₱{{ employee.position.base_salary }}
+                              {% else %}
+                                  <span class="text-muted">N/A</span>
+                              {% endif %}
+                          </td>
+                          <td>
+                              {% if employee.position %}
+                                  {{ employee.position.standard_hours }} hrs
+                              {% else %}
+                                  <span class="text-muted">N/A</span>
+                              {% endif %}
+                          </td>
+                          <td>
+                              {% if employee.is_active %}
+                                  <span class="badge bg-success">Active</span>
+                              {% else %}
+                                  <span class="badge bg-secondary">Inactive</span>
+                              {% endif %}
+                          </td>
+                          <td>{{ employee.contact }}</td>                         
+                          <td>
+                              <button class="btn btn-sm btn-primary edit-employee" 
+                                      data-employee-id="{{ employee.id }}"
+                                      data-bs-toggle="modal" 
+                                      data-bs-target="#editEmployeeModal">
+                                  <i class="fas fa-edit"></i>
+                              </button>
+                              <button class="btn btn-sm btn-danger delete-employee" 
+                                      data-employee-id="{{ employee.id }}">
+                                  <i class="fas fa-trash"></i>
+                              </button>
+                          </td>
+                      </tr>
+                      {% empty %}
+                      <tr>
+                          <td colspan="9" class="text-center">No employees found</td>
+                      </tr>
+                      {% endfor %}
+                  </tbody>
+              </table>
           </div>
-          <div class="card-body">
-            <div class="row text-center">
-              <div class="col-md-3 mb-3">
-                <div class="card bg-success text-white">
-                  <div class="card-body">
-                    <h2>42</h2>
-                    <p class="mb-0">Present</p>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-3 mb-3">
-                <div class="card bg-danger text-white">
-                  <div class="card-body">
-                    <h2>5</h2>
-                    <p class="mb-0">Absent</p>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-3 mb-3">
-                <div class="card bg-warning text-white">
-                  <div class="card-body">
-                    <h2>3</h2>
-                    <p class="mb-0">Late</p>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-3 mb-3">
-                <div class="card bg-info text-white">
-                  <div class="card-body">
-                    <h2>2</h2>
-                    <p class="mb-0">On Leave</p>
-                  </div>
-                </div>
-              </div>
+      </div>
+  </div>
+</div>
+
+<!-- Employee Creation Modal -->
+<div class="modal fade" id="employeeModal" tabindex="-1" aria-labelledby="employeeModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="employeeModalLabel">Create New Employee</h5>
+      </div>
+      <form id="employeeForm" method="post" action="{% url 'create_employee' %}">
+        {% csrf_token %}
+        <div class="modal-body">
+          
+          <div class="mb-4">
+            <h6 class="mb-3"><strong>Personal Information</strong></h6>
+            <div class="mb-3">
+              <label for="firstName" class="form-label">First Name</label>
+              <input type="text" class="form-control" id="firstName" name="first_name" required>
+            </div>
+            <div class="mb-3">
+              <label for="lastName" class="form-label">Last Name</label>
+              <input type="text" class="form-control" id="lastName" name="last_name" required>
+            </div>
+            <div class="mb-3">
+              <label for="contact" class="form-label">Contact</label>
+              <input type="text" class="form-control" id="contact" name="contact" required>
             </div>
           </div>
+
+          
+          <!-- Employment Details Section -->
+          <div class="mb-4">
+               <h6 class="mb-3"><strong>Employment Details</strong></h6>
+               <div class="mb-3">
+                 <label for="position" class="form-label">Position</label>
+                  <select class="form-select" id="position" name="position" required>
+                   <option value="" selected disabled>Select a position</option>
+                      {% for position in positions %}
+                       <option value="{{ position.id }}" 
+                        data-hourly-rate="{{ position.base_salary }}"
+                        data-standard-hours="{{ position.standard_hours }}">
+                    {{ position.name }}
+                </option>
+                      {% endfor %}
+               </select>
+              </div>
+                <div class="mb-3">
+                    <label for="hourlyRate" class="form-label">Hourly Rate (₱)</label>
+                    <input type="number" step="0.01" class="form-control" id="hourlyRate" name="hourly_rate" required readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="standardHours" class="form-label">Standard Hours</label>
+                    <input type="number" class="form-control" id="standardHours" name="standard_hours" required readonly>
+                </div>
+          </div>
+
+          
+          <div class="mb-4">
+            <h6 class="mb-3"><strong>Account Information</strong></h6>
+            <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" class="form-control" id="username" name="username" required>
+            <div class="form-text">Username must be unique and will be used for login.</div>
+          </div>            
+            <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+            <div class="form-text">Minimum 8 characters with at least 1 number and 1 special character.</div>
+          </div>
+            <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="isActive" name="is_active" checked>
+            <label class="form-check-label" for="isActive">Account is active</label>
+          </div>
+          </div>
         </div>
-        
-        <div class="table-responsive">
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Department</th>
-                <th>Clock In</th>
-                <th>Clock Out</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>E001</td>
-                <td>John Doe</td>
-                <td>IT</td>
-                <td>08:55 AM</td>
-                <td>05:05 PM</td>
-                <td><span class="badge badge-success">Present</span></td>
-                <td>
-                  <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
-                </td>
-              </tr>
-              <tr>
-                <td>E002</td>
-                <td>Jane Smith</td>
-                <td>Human Resources</td>
-                <td>09:10 AM</td>
-                <td>--</td>
-                <td><span class="badge badge-warning">Late</span></td>
-                <td>
-                  <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
-                </td>
-              </tr>
-              <tr>
-                <td>E003</td>
-                <td>Michael Johnson</td>
-                <td>Sales</td>
-                <td>--</td>
-                <td>--</td>
-                <td><span class="badge badge-danger">Absent</span></td>
-                <td>
-                  <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
-                </td>
-              </tr>
-              <tr>
-                <td>E004</td>
-                <td>Sarah Williams</td>
-                <td>Marketing</td>
-                <td>08:45 AM</td>
-                <td>05:15 PM</td>
-                <td><span class="badge badge-success">Present</span></td>
-                <td>
-                  <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
-                </td>
-              </tr>
-              <tr>
-                <td>E005</td>
-                <td>Robert Brown</td>
-                <td>Finance</td>
-                <td>--</td>
-                <td>--</td>
-                <td><span class="badge badge-info">On Leave</span></td>
-                <td>
-                  <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save Employee</button>
         </div>
-      </div>
+      </form>
     </div>
   </div>
+</div>
+
+
+<!-- Attendance Content -->
+<div class="container mt-4" id="attendanceContent" style="display: none;">
+  <div class="row">
+      <div class="col-12">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+              <h3>Employee Attendance</h3>
+              <div>
+                  <input type="date" class="form-control d-inline-block" style="width: auto;" id="attendanceDate" value="{{ today|date:'Y-m-d' }}">
+                  <button class="btn btn-danger ml-2" id="generateAttendanceReport">Generate Report</button>
+              </div>
+          </div>
+          
+          <div class="card mb-4">
+              <div class="card-header bg-light">
+                  <h5 class="mb-0">Today's Summary</h5>
+              </div>
+              <div class="card-body">
+                  <div class="row text-center">
+                      <div class="col-md-3 mb-3">
+                          <div class="card bg-success text-white">
+                              <div class="card-body">
+                                  <h2>{{ present_count }}</h2>
+                                  <p class="mb-0">Present</p>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="col-md-3 mb-3">
+                          <div class="card bg-danger text-white">
+                              <div class="card-body">
+                                  <h2>{{ absent_count }}</h2>
+                                  <p class="mb-0">Absent</p>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="col-md-3 mb-3">
+                          <div class="card bg-warning text-white">
+                              <div class="card-body">
+                                  <h2>{{ late_count }}</h2>
+                                  <p class="mb-0">Late</p>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="col-md-3 mb-3">
+                          <div class="card bg-info text-white">
+                              <div class="card-body">
+                                  <h2>{{ leave_count }}</h2>
+                                  <p class="mb-0">On Leave</p>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          
+          <div class="table-responsive">
+              <table class="table table-striped">
+                  <thead>
+                      <tr>
+                          <th>ID</th>
+                          <th>Name</th>
+                          <th>Position</th>
+                          <th>Clock In</th>
+                          <th>Clock Out</th>
+                          <th>Status</th>
+                          <th>Actions</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      {% for employee in employees %}
+                      <tr>
+                          <td>E{{ employee.id|stringformat:"03d" }}</td>
+                          <td>{{ employee.first_name }} {{ employee.last_name }}</td>
+                          <td>{{ employee.position.name }}</td>
+                          <td>--</td>
+                          <td>--</td>
+                          <td><span class="badge badge-secondary">Pending</span></td>
+                          <td>
+                              <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                          </td>
+                      </tr>
+                      {% endfor %}
+                  </tbody>
+              </table>
+          </div>
+      </div>
+  </div>
+</div>
   
 <!-- Salary Setup Content -->
 <div class="container mt-4" id="salarySetupContent" style="display: none;">
@@ -248,7 +304,7 @@
     <div class="col-12">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h3>Salary Setup</h3>
-        <button class="btn btn-danger" id="addSalaryStructure">Add Salary Structure</button>
+        <button class="btn btn-danger" id="addSalaryStructure"><i class="fas fa-plus me-2"></i>Add Salary Structure</button>
       </div>
       
       <div class="card mb-4">
@@ -261,65 +317,31 @@
               <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="basicSalary" checked>
                 <label class="form-check-label" for="basicSalary">
-                  Basic Salary
+                  Base Salary
                 </label>
               </div>
-            </div>
+            </div>            
             <div class="col-md-3">
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="houseRentAllowance" checked>
-                <label class="form-check-label" for="houseRentAllowance">
-                  House Rent Allowance
-                </label>
-              </div>
-            </div>
-            <div class="col-md-3">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="medicalAllowance" checked>
-                <label class="form-check-label" for="medicalAllowance">
-                  Medical Allowance
-                </label>
-              </div>
-            </div>
-            <div class="col-md-3">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="transportAllowance" checked>
-                <label class="form-check-label" for="transportAllowance">
-                  Transport Allowance
-                </label>
-              </div>
-            </div>
-          </div>
-          <div class="row mb-3">
-            <div class="col-md-3">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="overtimePay" checked>
-                <label class="form-check-label" for="overtimePay">
-                  Overtime Pay
-                </label>
-              </div>
-            </div>
-            <div class="col-md-3">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="bonus">
-                <label class="form-check-label" for="bonus">
+                <input class="form-check-input" type="checkbox" id="Bonus" checked>
+                <label class="form-check-label" for="Bonus">
                   Bonus
                 </label>
               </div>
             </div>
             <div class="col-md-3">
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="incomeTax" checked>
-                <label class="form-check-label" for="incomeTax">
-                  Income Tax (Deduction)
+                <input class="form-check-input" type="checkbox" id="Deduction" checked>
+                <label class="form-check-label" for="Deduction">
+                  Deduction
                 </label>
               </div>
             </div>
             <div class="col-md-3">
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="providentFund" checked>
-                <label class="form-check-label" for="providentFund">
-                  Provident Fund (Deduction)
+                <input class="form-check-input" type="checkbox" id="Tax" checked>
+                <label class="form-check-label" for="Tax">
+                  Tax
                 </label>
               </div>
             </div>
@@ -328,80 +350,74 @@
       </div>
       
       <div class="table-responsive">
-        <table class="table table-striped">
-          <thead>
+       <table class="table table-striped">
+        <thead>
             <tr>
-              <th>ID</th>
-              <th>Designation</th>
-              <th>Base Salary</th>
-              <th>HRA</th>
-              <th>Medical</th>
-              <th>Transport</th>
-              <th>Deductions</th>
-              <th>Net Salary</th>
-              <th>Actions</th>
+                <th>ID</th>
+                <th>Position</th>
+                <th>Base Salary</th>
+                <th>Deduction</th>
+                <th>Bonus</th>
+                <th>Actions</th>
             </tr>
-          </thead>
-          <tbody>
+        </thead>
+        <tbody>
+            {% for position in positions %}
             <tr>
-              <td>S001</td>
-              <td>Software Engineer</td>
-              <td>$5,000</td>
-              <td>$1,000</td>
-              <td>$500</td>
-              <td>$300</td>
-              <td>$800</td>
-              <td>$6,000</td>
-              <td>
-                <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
-                <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-              </td>
+                <td>P{{ position.id|stringformat:"03d" }}</td>
+                <td>{{ position.name }}</td>
+                <td>₱ {{ position.base_salary }}</td>
+                <td>₱ {{ position.deduction }}</td>
+                <td>₱ {{ position.bonus }}</td>
+                <td>
+                    <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                </td>
             </tr>
-            <tr>
-              <td>S002</td>
-              <td>HR Manager</td>
-              <td>$4,500</td>
-              <td>$900</td>
-              <td>$500</td>
-              <td>$300</td>
-              <td>$700</td>
-              <td>$5,500</td>
-              <td>
-                <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
-                <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-              </td>
-            </tr>
-            <tr>
-              <td>S003</td>
-              <td>Sales Executive</td>
-              <td>$3,500</td>
-              <td>$700</td>
-              <td>$400</td>
-              <td>$250</td>
-              <td>$550</td>
-              <td>$4,300</td>
-              <td>
-                <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
-                <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-              </td>
-            </tr>
-            <tr>
-              <td>S004</td>
-              <td>Marketing Manager</td>
-              <td>$4,000</td>
-              <td>$800</td>
-              <td>$500</td>
-              <td>$300</td>
-              <td>$650</td>
-              <td>$4,950</td>
-              <td>
-                <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
-                <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+            {% endfor %}
+        </tbody>
+       </table>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Salary Structure Button Modal -->
+<div class="modal fade" id="salaryStructureModal" tabindex="-1" aria-labelledby="salaryStructureModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="salaryStructureModalLabel">Add Salary Structure</h5>       
+      </div>
+      <form id="salaryStructureForm" method="post" action="{% url 'add_salary_structure' %}">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="positionName" class="form-label">Position Name</label>
+            <input type="text" class="form-control" id="positionName" name="name" required>
+          </div>
+          <div class="mb-3">
+            <label for="standardHours" class="form-label">Standard Hours</label>
+            <input type="number" class="form-control" id="standardHours" name="standard_hours" value="1" required>
+          </div>
+          <div class="mb-3">
+            <label for="baseSalary" class="form-label">Base Salary (₱)</label>
+            <input type="number" step="0.01" class="form-control" id="baseSalary" name="base_salary" required>
+          </div>
+          <div class="mb-3">
+            <label for="bonus" class="form-label">Bonus (₱)</label>
+            <input type="number" step="0.01" class="form-control" id="bonus" name="bonus" value="0">
+          </div>
+          <div class="mb-3">
+            <label for="deduction" class="form-label">Deduction (₱)</label>
+            <input type="number" step="0.01" class="form-control" id="deduction" name="deduction" value="0">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save Structure</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
@@ -486,7 +502,7 @@
                   <th>ID</th>
                   <th>Name</th>
                   <th>Designation</th>
-                  <th>Basic Salary</th>
+                  <th>Base Salary</th>
                   <th>Allowances</th>
                   <th>Overtime</th>
                   <th>Deductions</th>
@@ -497,13 +513,13 @@
               <tbody>
                 <tr>
                   <td>E001</td>
-                  <td>John Doe</td>
-                  <td>Software Engineer</td>
-                  <td>$5,000</td>
-                  <td>$1,800</td>
-                  <td>$200</td>
-                  <td>$800</td>
-                  <td>$6,200</td>
+                  <td>John Wick</td>
+                  <td>--</td>
+                  <td>--</td>
+                  <td>--</td>
+                  <td>--</td>
+                  <td>--</td>
+                  <td>--</td>
                   <td>
                     <div class="form-check">
                       <input class="form-check-input" type="checkbox" checked>
@@ -513,12 +529,12 @@
                 <tr>
                   <td>E002</td>
                   <td>Jane Smith</td>
-                  <td>HR Manager</td>
-                  <td>$4,500</td>
-                  <td>$1,700</td>
-                  <td>$0</td>
-                  <td>$700</td>
-                  <td>$5,500</td>
+                  <td>--</td>
+                  <td>--</td>
+                  <td>--</td>
+                  <td>--</td>
+                  <td>--</td>
+                  <td>--</td>
                   <td>
                     <div class="form-check">
                       <input class="form-check-input" type="checkbox" checked>
@@ -528,12 +544,12 @@
                 <tr>
                   <td>E003</td>
                   <td>Michael Johnson</td>
-                  <td>Sales Executive</td>
-                  <td>$3,500</td>
-                  <td>$1,350</td>
-                  <td>$150</td>
-                  <td>$550</td>
-                  <td>$4,450</td>
+                  <td>--</td>
+                  <td>--</td>
+                  <td>--</td>
+                  <td>--</td>
+                  <td>--</td>
+                  <td>--</td>
                   <td>
                     <div class="form-check">
                       <input class="form-check-input" type="checkbox" checked>
@@ -643,9 +659,9 @@
     </div>
   </div>
 </div>
-
+     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/js/bootstrap.min.js"></script>
-    <script src="{% static 'payroll_app/js/Admin_script.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'payroll_app/js/Admin_script.js' %}"></script> 
 </body>
 </html>

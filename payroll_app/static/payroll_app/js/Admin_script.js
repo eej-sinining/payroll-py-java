@@ -81,20 +81,125 @@ $(".navbar-toggler").click(function () {
 // Handle attendance report generation
 $("#generateAttendanceReport").click(function() {
     var selectedDate = $("#attendanceDate").val();
-    alert("Generating attendance report for: " + selectedDate);
+    alert("Attendance ni Aybol: " + selectedDate);
 });
 
 // Handle generate employee button click
 $("#generateEmployeeBtn").click(function() {
-    alert("Generate employee account functionality will be implemented here!");
+    $('#employeeModal').modal('show');
 });
 
-// Handle salary structure button
+// Handle position change to update hourly rate
+$(document).ready(function() {
+    // Handle position change to update hourly rate and standard hours
+    $("#position").change(function() {
+        const selectedOption = $(this).find('option:selected');
+        const hourlyRate = selectedOption.data('hourly-rate');
+        const standardHours = selectedOption.data('standard-hours');
+        
+        $("#hourlyRate").val(hourlyRate);
+        
+        // Only set standard hours if it exists in the data attribute
+        if (standardHours) {
+            $("#standardHours").val(standardHours);
+        }
+    });
+
+    // Handle form submission via AJAX
+    $("#employeeForm").submit(function(e) {
+        e.preventDefault();
+        
+        // Basic validation
+        if (!$("#position").val()) {
+            alert("Please select a position");
+            return false;
+        }
+        
+        $.ajax({
+            type: "POST",
+            url: $(this).attr('action'),
+            data: $(this).serialize(),
+            success: function(response) {
+                if(response.success) {
+                    $('#employeeModal').modal('hide');                
+                    location.reload();
+                } else {
+                    alert("Error: " + response.error);
+                }
+            },
+            error: function(xhr, errmsg, err) {
+                alert("An error occurred while saving the employee.");
+                console.log(xhr.status + ": " + xhr.responseText);
+            }
+        });
+    });
+});
+
+// Delete button functionality in employee page
+$(document).on('click', '.delete-employee', function() {
+    if (confirm('Are you sure you want to delete this employee and their user account?')) {
+        var employeeId = $(this).data('employee-id');
+        var $row = $(this).closest('tr');
+        
+        $.ajax({
+            type: "POST",
+            url: `/delete_employee/${employeeId}/`,
+            data: {
+                'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
+            },
+            success: function(response) {
+                if (response.success) {
+                    $row.fadeOut(400, function() {
+                        $(this).remove();
+                        // If no rows left, show the empty message
+                        if ($('tbody tr').not('.empty-row').length === 0) {
+                            $('tbody').html('<tr class="empty-row"><td colspan="7" class="text-center">No employees found</td></tr>');
+                        }
+                    });
+                } else {
+                    alert("Error: " + response.error);
+                }
+            },
+            error: function(xhr, errmsg, err) {
+                alert("An error occurred while deleting the employee.");
+                console.log(xhr.status + ": " + xhr.responseText);
+            }
+        });
+    }
+});
+
+// Handle salary structure button to show modal
 $("#addSalaryStructure").click(function() {
-    alert("Add salary structure functionality will be implemented here!");
+    $('#salaryStructureModal').modal('show');
+});
+
+// Handle salary structure form submission
+$("#salaryStructureForm").submit(function(e) {
+    e.preventDefault();
+    
+    $.ajax({
+        type: "POST",
+        url: $(this).attr('action'),
+        data: $(this).serialize(),
+        success: function(response) {
+            if(response.success) {
+                $('#salaryStructureModal').modal('hide');
+                // Show success message
+                alert("Salary structure added successfully!");
+                // Refresh the page to show the new structure
+                location.reload();
+            } else {
+                alert("Error: " + response.error);
+            }
+        },
+        error: function(xhr, errmsg, err) {
+            alert("An error occurred while saving the salary structure.");
+            console.log(xhr.status + ": " + xhr.responseText);
+        }
+    });
 });
 
 // Handle process payroll button
 $("#processPayroll").click(function() {
-    alert("Payroll processing will be implemented here!");
+    alert("Payroll ni Aybol");
 });
