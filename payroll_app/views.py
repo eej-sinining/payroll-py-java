@@ -13,7 +13,7 @@ from .forms import LoginForm, EmployeeForm
 from django.http import JsonResponse
 
 def homepage(request):
-    return render(request, 'payroll_app/home.html')
+    return render(request, 'payroll_app/employee.html')
 
 def login_view(request):
     """Handle user authentication"""
