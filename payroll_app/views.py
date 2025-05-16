@@ -36,33 +36,33 @@ def login_view(request):
     return redirect('payroll_app:homepage')
 
 def employee_records(request):
-    """Display all employees and the employee creation form"""
-    if not request.user.is_authenticated or not request.user.is_staff:
-        return redirect('payroll_app:homepage')
-        
     employees = Employee.objects.all().order_by('id')
-    positions = Position.objects.filter(is_active=True).order_by('name')  # Get active positions
+    positions = Position.objects.filter(is_active=True).order_by('id')  # Get active positions
     form = EmployeeForm()
     return render(request, 'payroll_app/Admin.html', {
         'employees': employees,
-        'employee_form': form
+        'employee_form': form,
+        'positions': positions  # Add positions to the context
     })
     
 def create_employee(request):
-    """Handle employee creation using the EmployeeForm"""
-    if not request.user.is_authenticated or not request.user.is_staff:
-        return JsonResponse({'success': False, 'error': 'Unauthorized'}, status=403)
-
     if request.method == 'POST':
         try:
-            # First create the Employee
+            # Get position instance
+            position_id = request.POST.get('position')
+            try:
+                position = Position.objects.get(id=position_id, is_active=True)
+            except Position.DoesNotExist:
+                return JsonResponse({'success': False, 'error': 'Invalid position selected'})
+            
+            # Create the Employee - standard_hours now comes from position
             employee = Employee(
                 first_name=request.POST.get('first_name'),
                 last_name=request.POST.get('last_name'),
-                position=request.POST.get('position'),
-                hourly_rate=request.POST.get('hourly_rate'),
-                standard_hours=request.POST.get('standard_hours'),
-                contact=request.POST.get('contact')
+                position=position,
+                hourly_rate=position.base_salary,  # From position
+                contact=request.POST.get('contact'),
+                is_active=request.POST.get('is_active', 'off') == 'on'
             )
             employee.save()
             
@@ -70,25 +70,23 @@ def create_employee(request):
             user = CustomUser.objects.create_user(
                 username=request.POST.get('username'),
                 password=request.POST.get('password'),
-                role='employee',  # or whatever default role you want
+                role='employee',
                 is_active=request.POST.get('is_active', 'off') == 'on',
-                employeeID=employee  # link the user to the employee
+                employeeID=employee
             )
-            
+
             return JsonResponse({'success': True})
         except IntegrityError as e:
-            # If employee was created but user creation failed, delete the employee
             if 'employee' in locals():
                 employee.delete()
             return JsonResponse({'success': False, 'error': 'Username already exists'})
         except Exception as e:
-            # Clean up if anything fails
             if 'employee' in locals():
                 employee.delete()
             if 'user' in locals():
                 user.delete()
             return JsonResponse({'success': False, 'error': str(e)})
-    return JsonResponse({'success': False, 'error': 'Invalid request method'}) 
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 
 def add_salary_structure(request):
@@ -116,52 +114,6 @@ def add_salary_structure(request):
     
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
-# def run_service_java(request):
-#     java_folder = os.path.join(os.path.dirname(__file__), 'java_files')
-#     java_filename = 'service.java'
-#     classname = 'service'
-
-#     # Security: Restrict file operations to specific directory
-#     try:
-#         if not os.path.exists(os.path.join(java_folder, java_filename)):
-#             return HttpResponse('Service not found', status=404)
-
-#         # Compile Java
-#         compile_result = subprocess.run(
-#             ['javac', java_filename],
-#             cwd=java_folder,
-#             stdout=subprocess.PIPE,
-#             stderr=subprocess.PIPE,
-#             text=True,
-#             timeout=10
-#         )
-#         if compile_result.returncode != 0:
-#             return HttpResponse(
-#                 f"Compilation error:\n{compile_result.stderr}",
-#                 status=500
-#             )
-
-#         # Execute Java
-#         run_result = subprocess.run(
-#             ['java', classname] + args,
-#             cwd=java_folder,
-#             stdout=subprocess.PIPE,
-#             stderr=subprocess.PIPE,
-#             text=True,
-#             timeout=10
-#         )
-#         if run_result.returncode != 0:
-#             return HttpResponse(
-#                 f"Runtime error:\n{run_result.stderr}",
-#                 status=500
-#             )
-
-#         return HttpResponse(f"Java Output:\n\n{run_result.stdout}")
-
-#     except subprocess.TimeoutExpired:
-#         return HttpResponse('Process timed out', status=500)
-#     except Exception as e:
-#         return HttpResponse(f"Error: {str(e)}", status=500)
 def run_service_java(request):
     # Get parameters from request if needed
     args = request.GET.getlist('args', [])  # Example: get arguments from query string
@@ -228,3 +180,6 @@ def delete_employee(request, employee_id):
         return JsonResponse({'success': False, 'error': 'Employee not found'})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
+    
+def employee_dashboard(request):
+    return render(request, 'payroll_app/employee.html')

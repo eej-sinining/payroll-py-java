@@ -26,6 +26,7 @@ urlpatterns = [
     path('', views.homepage, name='home'),
     path('home/', views.homepage, name='home'),
     path('super/', views.employee_records),
+    path('employee-dashboard/', views.employee_dashboard, name='employee_dashboard'),
     path('create-employee/', views.create_employee, name='create_employee'),
     path('delete_employee/<int:employee_id>/', views.delete_employee, name='delete_employee'),
     path('add_salary_structure/', views.add_salary_structure, name='add_salary_structure'),
