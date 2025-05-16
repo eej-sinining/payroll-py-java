@@ -4,7 +4,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 
 class Position(models.Model):
     name = models.CharField(max_length=30, unique=True)
-    standard_hours = models.IntegerField(default=1) 
+    standard_hours = models.IntegerField() 
     base_salary = models.DecimalField(max_digits=10, decimal_places=2)
     bonus = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     deduction = models.DecimalField(max_digits=10, decimal_places=2, default=0)

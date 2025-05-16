@@ -72,7 +72,7 @@ i {
     left: 0px;
     transition-duration: 0.6s;
     transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    background-color: #fff;
+    background-color: #f5f7fa;
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
     margin-top: 10px;
@@ -82,7 +82,7 @@ i {
     position: absolute;
     width: 25px;
     height: 25px;
-    background-color: #fff;
+    background-color: #f5f7fa;
     bottom: 10px;
 }
 .hori-selector .right {
@@ -165,4 +165,315 @@ i {
 .content {
     padding: 20px;
     text-align: center;
+}
+
+/* ---------- Admin Dropdown Styles ---------- */
+.admin-dropdown {
+    background: transparent;
+    border: none;
+    color: #e8716d;
+    padding: 0 5px;
+    font-size: 1.2rem;
+    transition: var(--transition);
+    outline: none;
+    box-shadow: none !important;
+}
+
+.admin-dropdown:hover, .admin-dropdown:focus {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+}
+
+.dropdown-menu {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 0;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.dropdown-item {
+    padding: 10px 15px;
+    font-size: 0.9rem;
+    transition: var(--transition);
+    color: var(--dark-color);
+}
+
+.dropdown-item:hover {
+    background-color: rgba(232, 113, 109, 0.1);
+    color: var(--primary-color);
+}
+
+.dropdown-item i {
+    width: 20px;
+    text-align: center;
+}
+
+.dropdown-divider {
+    margin: 0;
+    border-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Adjust navbar brand to work with dropdown */
+.navbar-brand {
+    margin-right: 0;
+    display: inline-block;
+}
+
+/* Keep original navbar colors for dropdown */
+.dropdown-menu {
+    background-color: white;
+}
+
+.dropdown-item.text-danger {
+    color: var(--primary-color) !important;
+}
+
+.dropdown-item.text-danger:hover {
+    background-color: rgba(232, 113, 109, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 991px) {
+    .dropdown-menu {
+        position: static !important;
+        transform: none !important;
+        margin-top: 0;
+        width: 100%;
+        box-shadow: none;
+        border-radius: 0;
+    }
+    
+    .admin-dropdown {
+        color: white;
+    }
+    
+    .navbar-brand {
+        color: #e8716d !important;
+    }
+}
+
+/* ---------- Modern Content Areas ---------- */
+:root {
+  --primary-color: #e8716d; /* Using your original accent color */
+  --secondary-color: #d15a56;
+  --dark-color: #3b3c42; /* Your original navbar color */
+  --light-color: #f8f9fa;
+  --success-color: #4cc9f0;
+  --warning-color: #f8961e;
+  --danger-color: #ef233c;
+  --border-radius: 8px;
+  --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s ease;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f5f7fa;
+  color: #333;
+  line-height: 1.6;
+}
+
+.container {
+  padding: 20px;
+  max-width: 1400px;
+}
+
+/* ---------- Modern Cards ---------- */
+.card {
+  border: none;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  transition: var(--transition);
+  margin-bottom: 20px;
+  background-color: white;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  background-color: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  font-weight: 600;
+  padding: 15px 20px;
+}
+
+/* ---------- Modern Tables ---------- */
+.table {
+  background-color: white;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--box-shadow);
+}
+
+.table thead th {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+  background-color: #f8f9fa;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.table td, .table th {
+  padding: 12px 15px;
+  vertical-align: middle;
+}
+
+/* ---------- Modern Buttons ---------- */
+.btn {
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  padding: 8px 16px;
+  transition: var(--transition);
+  border: none;
+}
+
+.btn-danger {
+  background-color: var(--primary-color);
+}
+
+.btn-danger:hover {
+  background-color: var(--secondary-color);
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background-color: #4361ee;
+}
+
+.btn-primary:hover {
+  background-color: #3a56d4;
+  transform: translateY(-1px);
+}
+
+.btn-sm {
+  padding: 5px 10px;
+  font-size: 0.8rem;
+}
+
+/* ---------- Modern Badges ---------- */
+.badge {
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+}
+
+.bg-success {
+  background-color: var(--success-color) !important;
+}
+
+.bg-secondary {
+  background-color: #6c757d !important;
+}
+
+/* ---------- Modern Forms ---------- */
+.form-control, .form-select {
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 10px 15px;
+  transition: var(--transition);
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(232, 113, 109, 0.25);
+}
+
+/* ---------- Modern Modal ---------- */
+.modal-content {
+  border-radius: var(--border-radius);
+  border: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  background-color: #f8f9fa;
+}
+
+.modal-title {
+  color: var(--dark-color);
+  font-weight: 600;
+}
+
+/* ---------- Summary Cards ---------- */
+.summary-card {
+  border-radius: var(--border-radius);
+  padding: 20px;
+  text-align: center;
+  transition: var(--transition);
+  color: white;
+  box-shadow: var(--box-shadow);
+}
+
+.summary-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* ---------- Tabs ---------- */
+.nav-tabs {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.nav-tabs .nav-link {
+  border: none;
+  color: #6c757d;
+  font-weight: 500;
+  padding: 10px 20px;
+}
+
+.nav-tabs .nav-link.active {
+  color: var(--primary-color);
+  border-bottom: 2px solid var(--primary-color);
+  background-color: transparent;
+}
+
+/* ---------- Loading Spinner ---------- */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.modal-body.loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  text-indent: -9999px;
+}
+
+/* ---------- Responsive Adjustments ---------- */
+@media (max-width: 768px) {
+  .table-responsive {
+    border: none;
+  }
+  
+  .card {
+    margin-bottom: 15px;
+  }
+  
+  .btn {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
 }

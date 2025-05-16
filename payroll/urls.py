@@ -27,8 +27,14 @@ urlpatterns = [
     path('home/', views.homepage, name='home'),
     path('super/', views.employee_records),
     path('create-employee/', views.create_employee, name='create_employee'),
+    path('get_employee_data/<int:employee_id>/', views.get_employee_data, name='get_employee_data'),
+    path('update_employee/<int:employee_id>/', views.update_employee, name='update_employee'),
     path('delete_employee/<int:employee_id>/', views.delete_employee, name='delete_employee'),
     path('add_salary_structure/', views.add_salary_structure, name='add_salary_structure'),
+    path('get_position_data/<int:position_id>/', views.get_position_data, name='get_position_data'),
+    path('update_salary_structure/<int:position_id>/', views.update_salary_structure, name='update_salary_structure'),
+    path('delete_salary_structure/<int:position_id>/', views.delete_salary_structure, name='delete_salary_structure'),
+    
 ] 
 
 path('run-java-payroll/', views.run_service_java),

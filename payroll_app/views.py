@@ -2,7 +2,7 @@ import re
 import json
 import os
 import subprocess
-from decimal import Decimala
+from decimal import Decimal
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
@@ -41,13 +41,102 @@ def login_view(request):
 
 def employee_records(request):
     employees = Employee.objects.all().order_by('id')
-    positions = Position.objects.filter(is_active=True).order_by('name')  # Get active positions
+    positions = Position.objects.filter(is_active=True).order_by('id')  # Get active positions
     form = EmployeeForm()
     return render(request, 'payroll_app/Admin.html', {
         'employees': employees,
         'employee_form': form,
-        'positions': positions  # Add positions to the context
+        'positions': positions,  # Add positions to the context
     })
+
+def get_employee_data(request, employee_id):
+    try:
+        employee = Employee.objects.select_related('position').get(id=employee_id)
+        user = CustomUser.objects.get(employeeID=employee)
+        
+        response_data = {
+            'success': True,
+            'employee': {
+                'id': employee.id,
+                'first_name': employee.first_name,
+                'last_name': employee.last_name,
+                'contact': employee.contact,
+                'hourly_rate': str(employee.hourly_rate),
+                'is_active': employee.is_active,
+                'position': {
+                    'id': employee.position.id if employee.position else None,
+                    'name': employee.position.name if employee.position else None,
+                    'standard_hours': employee.position.standard_hours if employee.position else None,
+                    'base_salary': str(employee.position.base_salary) if employee.position else None,
+                } if employee.position else None
+            },
+            'user': {
+                'username': user.username,
+                'is_active': user.is_active
+            }
+        }
+        
+        return JsonResponse(response_data)
+        
+    except Employee.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Employee not found'})
+    except CustomUser.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'User account not found'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+def update_employee(request, employee_id):
+    if request.method == 'POST':
+        try:
+            employee = Employee.objects.get(id=employee_id)
+            user = CustomUser.objects.get(employeeID=employee)
+            
+            # Get new username from form
+            new_username = request.POST.get('username')
+            
+            # Check if username is being changed and if it already exists
+            if new_username and new_username != user.username:
+                if CustomUser.objects.exclude(id=user.id).filter(username=new_username).exists():
+                    return JsonResponse({
+                        'success': False, 
+                        'error': 'Username already exists'
+                    })
+            
+            # Update basic employee info
+            employee.first_name = request.POST.get('first_name')
+            employee.last_name = request.POST.get('last_name')
+            employee.contact = request.POST.get('contact')
+            
+            # Update position if changed
+            position_id = request.POST.get('position')
+            if position_id and position_id != 'none':
+                position = Position.objects.get(id=position_id)
+                employee.position = position
+                employee.hourly_rate = position.base_salary
+            elif position_id == 'none':
+                employee.position = None
+                employee.hourly_rate = None
+            
+            # Update active status
+            employee.is_active = request.POST.get('is_active', 'off') == 'on'
+            employee.save()
+            
+            # Update user account
+            user.username = new_username
+            user.is_active = employee.is_active
+            password = request.POST.get('password')
+            if password:  # Only update password if provided
+                user.set_password(password)
+            user.save()
+            
+            return JsonResponse({'success': True, 'refresh': True})
+            
+        except Position.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Invalid position selected'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 def delete_employee(request, employee_id):
     try:
@@ -136,6 +225,72 @@ def add_salary_structure(request):
     
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
+def get_position_data(request, position_id):
+    try:
+        position = Position.objects.get(id=position_id)
+        
+        response_data = {
+            'success': True,
+            'position': {
+                'id': position.id,
+                'name': position.name,
+                'standard_hours': position.standard_hours,
+                'base_salary': str(position.base_salary),
+                'bonus': str(position.bonus),
+                'deduction': str(position.deduction),
+            }
+        }
+        
+        return JsonResponse(response_data)
+        
+    except Position.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Position not found'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+def update_salary_structure(request, position_id):
+    if request.method == 'POST':
+        try:
+            position = Position.objects.get(id=position_id)
+            
+            # Update position data
+            position.name = request.POST.get('name')
+            position.standard_hours = int(request.POST.get('standard_hours', 40))
+            position.base_salary = Decimal(request.POST.get('base_salary'))
+            position.bonus = Decimal(request.POST.get('bonus', 0))
+            position.deduction = Decimal(request.POST.get('deduction', 0))
+            
+            position.save()
+            
+            return JsonResponse({'success': True})
+            
+        except Position.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Position not found'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+def delete_salary_structure(request, position_id):
+    try:
+        position = Position.objects.get(id=position_id)
+        
+        # Check if any employees are using this position
+        if Employee.objects.filter(position=position).exists():
+            return JsonResponse({
+                'success': False, 
+                'error': 'Cannot delete this position because it is assigned to one or more employees.'
+            })
+            
+        position.delete()
+        return JsonResponse({'success': True})
+        
+    except Position.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Position not found'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
 def run_service_java(request):
     """Execute Java service with proper security checks"""
     if not request.user.is_authenticated:
@@ -191,6 +346,7 @@ def run_service_java(request):
                 f"Runtime error:\n{run_result.stderr}",
                 status=500
             )
+
 
         return HttpResponse(f"Java Output:\n\n{run_result.stdout}")
 

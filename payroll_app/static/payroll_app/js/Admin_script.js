@@ -31,6 +31,27 @@ function test() {
         });
     });
 }
+// Handle admin dropdown
+$(document).ready(function() {
+    // Close dropdown when clicking outside
+    $(document).click(function(e) {
+        if (!$(e.target).closest('.dropdown').length) {
+            $('.dropdown-menu').removeClass('show');
+        }
+    });
+    
+    // Keep dropdown open when clicking inside
+    $('.dropdown-menu').click(function(e) {
+        e.stopPropagation();
+    });
+    
+    // Make sure dropdown works on mobile
+    $('.admin-dropdown').click(function() {
+        var dropdown = $(this).next('.dropdown-menu');
+        $('.dropdown-menu').not(dropdown).removeClass('show');
+        dropdown.toggleClass('show');
+    });
+});
 
 $(document).ready(function () {
     setTimeout(function () {
@@ -135,6 +156,92 @@ $(document).ready(function() {
     });
 });
 
+// Handle edit employee button click
+$(document).on('click', '.edit-employee', function() {
+    var employeeId = $(this).data('employee-id');
+    
+    // Show loading state
+    $('#editEmployeeModal .modal-body').addClass('loading');
+    $('#editEmployeeModal').modal('show');
+    
+    // Fetch employee data via AJAX
+    $.ajax({
+        url: `/get_employee_data/${employeeId}/`,
+        type: 'GET',
+        success: function(response) {
+            $('#editEmployeeModal .modal-body').removeClass('loading');
+            
+            if (response.success) {
+                // Populate the form with employee data
+                $('#editEmployeeId').val(response.employee.id);
+                $('#editFirstName').val(response.employee.first_name);
+                $('#editLastName').val(response.employee.last_name);
+                $('#editContact').val(response.employee.contact);
+                
+                // Set position and related fields
+                if (response.employee.position) {
+                    $('#editPosition').val(response.employee.position.id);
+                    $('#editHourlyRate').val(response.employee.hourly_rate);
+                    $('#editStandardHours').val(response.employee.position.standard_hours);
+                } else {
+                    $('#editPosition').val('');
+                    $('#editHourlyRate').val('');
+                    $('#editStandardHours').val('');
+                }
+                
+                // Set account information
+                $('#editUsername').val(response.user.username);
+                $('#editIsActive').prop('checked', response.user.is_active);
+                
+                // Set the form action URL
+                $('#editEmployeeForm').attr('action', `/update_employee/${employeeId}/`);
+            } else {
+                alert('Error: ' + response.error);
+                $('#editEmployeeModal').modal('hide');
+            }
+        },
+        error: function(xhr, errmsg, err) {
+            $('#editEmployeeModal .modal-body').removeClass('loading');
+            alert('An error occurred while fetching employee data');
+            $('#editEmployeeModal').modal('hide');
+            console.log(xhr.status + ": " + xhr.responseText);
+        }
+    });
+});
+
+// Handle edit form submission
+$("#editEmployeeForm").submit(function(e) {
+    e.preventDefault();
+    
+    // Clear previous error messages
+    $('.username-error').remove();
+    
+    $.ajax({
+        type: "POST",
+        url: $(this).attr('action'),
+        data: $(this).serialize(),
+        success: function(response) {
+            if(response.success) {
+                $('#editEmployeeModal').modal('hide');
+                location.reload();  // Refresh the page
+            } else {
+                // Show specific error for username
+                if (response.error && response.error.includes('Username')) {
+                    $('#editUsername').after(
+                        `<div class="text-danger username-error mt-1">${response.error}</div>`
+                    );
+                } else {
+                    alert("Error: " + response.error);
+                }
+            }
+        },
+        error: function(xhr, errmsg, err) {
+            alert("An error occurred while updating the employee.");
+            console.log(xhr.status + ": " + xhr.responseText);
+        }
+    });
+});
+
 // Delete button functionality in employee page
 $(document).on('click', '.delete-employee', function() {
     if (confirm('Are you sure you want to delete this employee and their user account?')) {
@@ -194,6 +301,156 @@ $("#salaryStructureForm").submit(function(e) {
         },
         error: function(xhr, errmsg, err) {
             alert("An error occurred while saving the salary structure.");
+            console.log(xhr.status + ": " + xhr.responseText);
+        }
+    });
+});
+
+// Handle edit salary structure button click
+$(document).on('click', '.edit-salary-structure', function() {
+    var positionId = $(this).data('position-id');
+    
+    // Show loading state
+    $('#editSalaryStructureModal .modal-body').addClass('loading');
+    $('#editSalaryStructureModal').modal('show');
+    
+    // Fetch position data via AJAX
+    $.ajax({
+        url: `/get_position_data/${positionId}/`,
+        type: 'GET',
+        success: function(response) {
+            $('#editSalaryStructureModal .modal-body').removeClass('loading');
+            
+            if (response.success) {
+                // Populate the form with position data
+                $('#editPositionId').val(response.position.id);
+                $('#editPositionName').val(response.position.name);
+                $('#editStandardHours').val(response.position.standard_hours);
+                $('#editBaseSalary').val(response.position.base_salary);
+                $('#editBonus').val(response.position.bonus);
+                $('#editDeduction').val(response.position.deduction);
+                
+                // Set the form action URL
+                $('#editSalaryStructureForm').attr('action', `/update_salary_structure/${positionId}/`);
+            } else {
+                alert('Error: ' + response.error);
+                $('#editSalaryStructureModal').modal('hide');
+            }
+        },
+        error: function(xhr, errmsg, err) {
+            $('#editSalaryStructureModal .modal-body').removeClass('loading');
+            alert('An error occurred while fetching position data');
+            $('#editSalaryStructureModal').modal('hide');
+            console.log(xhr.status + ": " + xhr.responseText);
+        }
+    });
+});
+
+// Handle edit salary structure form submission
+$("#editSalaryStructureForm").submit(function(e) {
+    e.preventDefault();
+    
+    $.ajax({
+        type: "POST",
+        url: $(this).attr('action'),
+        data: $(this).serialize(),
+        success: function(response) {
+            if(response.success) {
+                $('#editSalaryStructureModal').modal('hide');
+                // Show success message
+                alert("Salary structure updated successfully!");
+                // Refresh the page to show the updated structure
+                location.reload();
+            } else {
+                alert("Error: " + response.error);
+            }
+        },
+        error: function(xhr, errmsg, err) {
+            alert("An error occurred while updating the salary structure.");
+            console.log(xhr.status + ": " + xhr.responseText);
+        }
+    });
+});
+
+// Handle delete salary structure button click
+$(document).on('click', '.delete-salary-structure', function() {
+    if (confirm('Are you sure you want to delete this salary structure? This action cannot be undone.')) {
+        var positionId = $(this).data('position-id');
+        var $row = $(this).closest('tr');
+        
+        $.ajax({
+            type: "POST",
+            url: `/delete_salary_structure/${positionId}/`,
+            data: {
+                'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
+            },
+            success: function(response) {
+                if (response.success) {
+                    $row.fadeOut(400, function() {
+                        $(this).remove();
+                        // If no rows left, show the empty message
+                        if ($('tbody tr').not('.empty-row').length === 0) {
+                            $('tbody').html('<tr class="empty-row"><td colspan="7" class="text-center">No salary structures found</td></tr>');
+                        }
+                    });
+                } else {
+                    alert("Error: " + response.error);
+                }
+            },
+            error: function(xhr, errmsg, err) {
+                alert("An error occurred while deleting the salary structure.");
+                console.log(xhr.status + ": " + xhr.responseText);
+            }
+        });
+    }
+});
+
+// Handle salary sort form submission
+$("#salarySortForm").submit(function(e) {
+    e.preventDefault();
+    
+    const sortBy = $('input[name="salarySort"]:checked').val();
+    const sortOrder = $('input[name="sortOrder"]:checked').val();
+    
+    $.ajax({
+        type: "GET",
+        url: "/sort_salary_structures/",
+        data: {
+            'sort_by': sortBy,
+            'sort_order': sortOrder
+        },
+        success: function(response) {
+            if(response.success) {
+                // Rebuild the table with sorted data
+                const tbody = $('table tbody');
+                tbody.empty();
+                
+                response.positions.forEach(position => {
+                    tbody.append(`
+                        <tr>
+                            <td>P${position.id.toString().padStart(3, '0')}</td>
+                            <td>${position.name}</td>
+                            <td>${position.standard_hours} hrs</td>
+                            <td>₱ ${position.base_salary}</td>
+                            <td>₱ ${position.deduction}</td>
+                            <td>₱ ${position.bonus}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary edit-salary-structure" data-position-id="${position.id}"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-sm btn-danger delete-salary-structure" data-position-id="${position.id}"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `);
+                });
+                
+                if (response.positions.length === 0) {
+                    tbody.append('<tr class="empty-row"><td colspan="7" class="text-center">No salary structures found</td></tr>');
+                }
+            } else {
+                alert("Error: " + response.error);
+            }
+        },
+        error: function(xhr, errmsg, err) {
+            alert("An error occurred while sorting salary structures.");
             console.log(xhr.status + ": " + xhr.responseText);
         }
     });
