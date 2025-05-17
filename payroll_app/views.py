@@ -46,39 +46,43 @@ def link(request):
         print("DEBUG: Exception occurred in link():", str(e))
         return redirect('home')
 
-@require_http_methods(["GET"])
+# @require_http_methods(["GET"])
 def home_page(request):
     """Render home/landing page."""
     return render(request, 'payroll_app/home.html')
 
-@login_required
+# @login_required
 def employee_dashboard(request):
     """Render employee dashboard."""
     return render(request, 'payroll_app/employee.html')
 
-@login_required
+# @login_required
 def admin_dashboard(request):
     """Render admin dashboard."""
     return render(request, 'payroll_app/admin.html')
 
-@require_http_methods(["GET", "POST"])
+# @require_http_methods(["GET", "POST"])
 def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
         password = request.POST.get('password', '').strip()
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            if CustomUser.objects.get(username=username).role == 'Admin':
-                return redirect('admin_dashboard')
-            else:
-                return redirect('employee_dashboard')
+
+        # Manually check your Admin table
+        admin = Admin.objects.filter(username=username, password=password).first()
+
+        if admin:
+            # Optionally store session data manually
+            request.session['admin_id'] = admin.id
+            request.session['admin_username'] = admin.username
+            return redirect('admin_dashboard')
         else:
             messages.error(request, 'Invalid username or password')
-    return redirect('home')
-    
-@login_required
-@require_http_methods(["GET"])
+            return redirect('home')
+
+    return render(request, 'home')
+
+# @login_required
+# @require_http_methods(["GET"])
 def employee_records(request):
     """Display all employee records with form for new employees."""
     return render(request, 'payroll_app/Admin.html', {
@@ -87,8 +91,8 @@ def employee_records(request):
         'positions': Position.objects.filter(is_active=True).order_by('id')
     })
 
-@login_required
-@require_http_methods(["POST"])
+# @login_required
+# @require_http_methods(["POST"])
 def create_employee(request):
     """Create new employee and associated user account."""
     try:
@@ -124,8 +128,8 @@ def create_employee(request):
         Employee.objects.filter(id=getattr(employee, 'id', None)).delete()
         return JsonResponse({'success': False, 'error': str(e)})
 
-@login_required
-@require_http_methods(["POST"])
+# @login_required
+# @require_http_methods(["POST"])
 def add_salary_structure(request):
     """Create new salary position structure."""
     try:
@@ -140,8 +144,8 @@ def add_salary_structure(request):
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
 
-@login_required
-@require_http_methods(["GET"])
+# @login_required
+# @require_http_methods(["GET"])
 def run_service_java(request):
     """Compile and execute Java service with security checks."""
     try:
@@ -181,8 +185,8 @@ def run_service_java(request):
     except Exception as e:
         return HttpResponse(f"Error: {str(e)}", status=500)
 
-@login_required
-@require_http_methods(["POST"])
+# @login_required
+# @require_http_methods(["POST"])
 def delete_employee(request, employee_id):
     """Delete employee and associated user account."""
     try:
@@ -195,7 +199,7 @@ def delete_employee(request, employee_id):
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
 
-@require_http_methods(["GET"])
+# @require_http_methods(["GET"])
 def logout(request):
     """Log out user and clear session."""
     request.session.flush()

@@ -110,6 +110,7 @@ class Deduction(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
 
 class Admin(models.Model):
+    id = models.AutoField(primary_key=True)
     username = models.CharField(max_length=50, unique=True)
     password = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
@@ -173,3 +174,5 @@ class Attendance(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.date}"
+
+    

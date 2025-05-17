@@ -242,8 +242,15 @@
 							<th>Time - in</th>
 							<th>Time - out</th>
 						</tr>
+						{% for record in attendance_records %}
 						<tr>
+							<td>{{ record.date|date:"M d, Y" }}</td>
+							<td>{{ record.time_in|default:"--" }}</td>
+							<td>{{ record.time_out|default:"--" }}</td>
 						</tr>
+						{% empty %}
+						<tr><td colspan="3">No attendance records yet.</td></tr>
+						{% endfor %}
 					</table>
 				</div>
 			</div>
