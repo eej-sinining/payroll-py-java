@@ -126,33 +126,37 @@ $(document).ready(function() {
     });
 
     // Handle form submission via AJAX
-    $("#employeeForm").submit(function(e) {
+    $(document).ready(function() {
+    $('#employeeForm').submit(function(e) {
         e.preventDefault();
         
-        // Basic validation
-        if (!$("#position").val()) {
-            alert("Please select a position");
-            return false;
+        // Validate password complexity
+        const password = $('#password').val();
+        if (!/(?=.*\d)(?=.*[!@#$%^&*])/.test(password)) {
+            alert('Password must contain at least 1 number and 1 special character');
+            return;
         }
-        
+
         $.ajax({
-            type: "POST",
-            url: $(this).attr('action'),
+            url: '/create-employee/',
+            method: 'POST',
             data: $(this).serialize(),
+            headers: {
+                "X-CSRFToken": $('input[name="csrfmiddlewaretoken"]').val()
+            },
             success: function(response) {
                 if(response.success) {
-                    $('#employeeModal').modal('hide');                
-                    location.reload();
+                    location.reload(); // Refresh to show new employee
                 } else {
-                    alert("Error: " + response.error);
+                    alert('Error: ' + response.error);
                 }
             },
-            error: function(xhr, errmsg, err) {
-                alert("An error occurred while saving the employee.");
-                console.log(xhr.status + ": " + xhr.responseText);
+            error: function(xhr) {
+                alert('Server error: ' + xhr.statusText);
             }
         });
     });
+});
 });
 
 // Delete button functionality in employee page
@@ -188,38 +192,204 @@ $(document).on('click', '.delete-employee', function() {
     }
 });
 
-// Handle salary structure button to show modal
-$("#addSalaryStructure").click(function() {
-    $('#salaryStructureModal').modal('show');
-});
+$(document).ready(function() {
+    // Handle add salary structure button click
+    $('#addSalaryStructure').click(function() {
+        $('#salaryModal').modal('show');
+    });
 
-// Handle salary structure form submission
-$("#salaryStructureForm").submit(function(e) {
-    e.preventDefault();
-    
-    $.ajax({
-        type: "POST",
-        url: $(this).attr('action'),
-        data: $(this).serialize(),
-        success: function(response) {
-            if(response.success) {
-                $('#salaryStructureModal').modal('hide');
-                // Show success message
-                alert("Salary structure added successfully!");
-                // Refresh the page to show the new structure
-                location.reload();
-            } else {
-                alert("Error: " + response.error);
+    // Handle form submission
+    $('#salaryForm').submit(function(e) {
+        e.preventDefault();
+        
+        $.ajax({
+            url: '/add-salary-structure/',
+            method: 'POST',
+            data: $(this).serialize(),
+            success: function(response) {
+                if(response.success) {
+                    // Add the new position to the table
+                    addPositionToTable(response.position);
+                    $('#salaryModal').modal('hide');
+                    showSuccessAlert('Salary structure added successfully!');
+                    // Reset form
+                    $('#salaryForm')[0].reset();
+                } else {
+                    showErrorAlert(response.error);
+                }
+            },
+            error: function(xhr) {
+                showErrorAlert('An error occurred: ' + xhr.responseText);
             }
-        },
-        error: function(xhr, errmsg, err) {
-            alert("An error occurred while saving the salary structure.");
-            console.log(xhr.status + ": " + xhr.responseText);
+        });
+    });
+
+    // Function to add new position to table
+    function addPositionToTable(position) {
+    const formattedId = 'P' + String(position.id).padStart(3, '0');
+    const newRow = $(`
+        <tr>
+            <td>${formattedId}</td>
+            <td>${position.name}</td>
+            <td>${position.standard_hours} hrs</td>
+            <td>₱ ${position.base_salary}</td>
+            <td>₱ ${position.bonus}</td>
+            <td>₱ ${position.deduction}</td>
+            <td>
+                <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+    `);
+    
+    // Find the correct position to insert (alphabetical by name)
+    let inserted = false;
+    $('#positionsTableBody tr').each(function() {
+        if ($(this).find('td:nth-child(2)').text().localeCompare(position.name) > 0) {
+            $(this).before(newRow);
+            inserted = true;
+            return false; // break loop
         }
     });
+    
+    // If not inserted yet, append to end
+    if (!inserted) {
+        $('#positionsTableBody').append(newRow);
+    }
+}
 });
 
 // Handle process payroll button
 $("#processPayroll").click(function() {
     alert("Payroll ni Aybol");
+});
+
+//create employee
+$(document).ready(function() {
+    // Update hourly rate and standard hours when position changes
+    $('#position').change(function() {
+        const selectedOption = $(this).find('option:selected');
+        $('#hourlyRate').val(selectedOption.data('hourly-rate'));
+        $('#standardHours').val(selectedOption.data('standard-hours'));
+    });
+
+    // Handle employee form submission
+    $('#employeeForm').submit(function(e) {
+        e.preventDefault();
+        
+        $.ajax({
+            url: '/create-employee/',
+            method: 'POST',
+            data: $(this).serialize(),
+            success: function(response) {
+                if(response.success) {
+                    // Add new employee to table
+                    addEmployeeToTable(response.employee);
+                    $('#employeeModal').modal('hide');
+                    showSuccessAlert('Employee created successfully!');
+                    // Reset form
+                    $('#employeeForm')[0].reset();
+                } else {
+                    showErrorAlert(response.error);
+                }
+            },
+            error: function(xhr) {
+                showErrorAlert('Error: ' + xhr.responseText);
+            }
+        });
+    });
+
+    // Function to add new employee row
+    function addEmployeeToTable(employee) {
+    const statusClass = employee.is_active ? 'bg-success' : 'bg-secondary';
+    const statusText = employee.is_active ? 'Active' : 'Inactive';
+    
+    // Fix undefined names and format data properly
+    const firstName = employee.first_name || '';
+    const lastName = employee.last_name || '';
+    const positionName = employee.position?.name || 'No Position';
+    const hourlyRate = employee.hourly_rate ? `₱${parseFloat(employee.hourly_rate).toFixed(2)}` : 'N/A';
+    const standardHours = employee.standard_hours ? `${employee.standard_hours} hrs` : 'N/A';
+    const contact = employee.contact || 'N/A';
+
+    const newRow = `
+        <tr>
+            <td>E${String(employee.id).padStart(3, '0')}</td>
+            <td>${firstName} ${lastName}</td>
+            <td>${positionName}</td>
+            <td>${hourlyRate}</td>
+            <td>${standardHours}</td>
+            <td><span class="badge ${statusClass}">${statusText}</span></td>
+            <td>${contact}</td>
+            <td>
+                <button class="btn btn-sm btn-primary edit-employee" 
+                        data-employee-id="${employee.id}"
+                        data-bs-toggle="modal" 
+                        data-bs-target="#editEmployeeModal">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-danger delete-employee" 
+                        data-employee-id="${employee.id}">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        </tr>
+    `;
+    
+    $('tbody tr td[colspan="9"]').parent().remove();
+    $('table tbody').prepend(newRow);
+}
+});
+
+// Alert functions
+function showSuccessAlert(message) {
+    const alert = `<div class="alert alert-success alert-dismissible fade show" role="alert">
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>`;
+    $('#alertsContainer').append(alert);
+    setTimeout(() => $('.alert').alert('close'), 3000);
+}
+
+function showErrorAlert(message) {
+    const alert = `<div class="alert alert-danger alert-dismissible fade show" role="alert">
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>`;
+    $('#alertsContainer').append(alert);
+}
+
+// Fetch and display employees (if not using Django template rendering)
+$(document).ready(function() {
+    $.ajax({
+        url: '/api/employees/',  // You need an API endpoint for this
+        method: 'GET',
+        success: function(data) {
+            // Loop through data and append rows to the table
+            data.forEach(employee => {
+                $('tbody').append(`
+                    <tr>
+                        <td>E${employee.id.toString().padStart(3, '0')}</td>
+                        <td>${employee.first_name} ${employee.last_name}</td>
+                        <td>${employee.position?.name || '<span class="text-muted">No Position</span>'}</td>
+                        <td>${employee.position ? '₱' + employee.position.base_salary : '<span class="text-muted">N/A</span>'}</td>
+                        <td>${employee.position ? employee.position.standard_hours + ' hrs' : '<span class="text-muted">N/A</span>'}</td>
+                        <td><span class="badge ${employee.is_active ? 'bg-success' : 'bg-secondary'}">${employee.is_active ? 'Active' : 'Inactive'}</span></td>
+                        <td>${employee.contact}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary edit-employee" data-employee-id="${employee.id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger delete-employee" data-employee-id="${employee.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `);
+            });
+        },
+        error: function(error) {
+            console.error("Error fetching employees:", error);
+        }
+    });
 });

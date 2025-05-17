@@ -21,6 +21,7 @@ urlpatterns = [
     # Employee management
     path('employee-records/', views.employee_records, name='employee_records'),  # Better naming
     path('create-employee/', views.create_employee, name='create_employee'),
+    path('employees/<int:employee_id>/', views.get_employee_data, name='get_employee_data'),
     path('delete-employee/<int:employee_id>/', views.delete_employee, name='delete_employee'),
     
     # Salary structure

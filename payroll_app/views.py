@@ -7,13 +7,15 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.db import IntegrityError
 from .models import Employee, CustomUser, Position
 from .forms import LoginForm, EmployeeForm
 
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
+from typing import Dict, Any
+from django.db import transaction
 
 User = get_user_model()
 
@@ -163,61 +165,70 @@ def delete_employee(request, employee_id):
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
 
+@transaction.atomic
 def create_employee(request):
     if request.method == 'POST':
         try:
-            # Get position instance
-            position_id = request.POST.get('position')
+            # Get form data
+            required_fields = ['first_name', 'last_name', 'position', 'contact', 'username', 'password']
+            if any(field not in request.POST for field in required_fields):
+                return JsonResponse({'success': False, 'error': 'Missing required fields'}, status=400)
+
+            is_active = request.POST.get('is_active', 'false').lower() == 'true'
+            
             try:
-                position = Position.objects.get(id=position_id, is_active=True)
+                position = Position.objects.get(id=request.POST['position'])
             except Position.DoesNotExist:
-                return JsonResponse({'success': False, 'error': 'Invalid position selected'})
-            
-            # Create the Employee - standard_hours now comes from position
-            employee = Employee(
-                first_name=request.POST.get('first_name'),
-                last_name=request.POST.get('last_name'),
-                position=position,
-                hourly_rate=position.base_salary,  # From position
-                contact=request.POST.get('contact'),
-                is_active=request.POST.get('is_active', 'off') == 'on'
-            )
-            employee.save()
-            
-            # Then create the CustomUser account
-            user = CustomUser.objects.create_user(
-                username=request.POST.get('username'),
-                password=request.POST.get('password'),
-                role='employee',
-                is_active=request.POST.get('is_active', 'off') == 'on',
-                employeeID=employee
-            )
+                return JsonResponse({'success': False, 'error': 'Invalid position'}, status=400)
 
-            return JsonResponse({'success': True})
-        except IntegrityError as e:
-            if 'employee' in locals():
-                employee.delete()
-            return JsonResponse({'success': False, 'error': 'Username already exists'})
+            with transaction.atomic():
+                # Create employee
+                employee = Employee.objects.create(
+                    first_name=request.POST['first_name'],
+                    last_name=request.POST['last_name'],
+                    position=position,
+                    hourly_rate=position.base_salary,
+                    standard_hours=position.standard_hours,
+                    contact=request.POST['contact'],
+                    is_active=is_active
+                )
+
+                # Create user account
+                CustomUser.objects.create_user(
+                    username=request.POST['username'],
+                    password=request.POST['password'],
+                    role='employee',
+                    is_active=is_active,
+                    employeeID=employee
+                )
+
+            return JsonResponse({
+                'success': True,
+                'employee': {
+                    'id': employee.id,
+                    'name': f"{employee.first_name} {employee.last_name}",
+                    'position': position.name,
+                    'hourly_rate': str(position.base_salary),
+                    'status': 'Active' if is_active else 'Inactive'
+                }
+            })
+
         except Exception as e:
-            if 'employee' in locals():
-                employee.delete()
-            if 'user' in locals():
-                user.delete()
-            return JsonResponse({'success': False, 'error': str(e)})
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
-
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    
+    return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
 
 def add_salary_structure(request):
     if request.method == 'POST':
         try:
             name = request.POST.get('name')
             standard_hours = int(request.POST.get('standard_hours', 40))
-            base_salary = Decimal(request.POST.get('base_salary'))
+            base_salary = Decimal(request.POST.get('base_salary', 0))
             bonus = Decimal(request.POST.get('bonus', 0))
             deduction = Decimal(request.POST.get('deduction', 0))
             
-            # Create new position with salary structure
-            Position.objects.create(
+            # Create new position
+            new_position = Position.objects.create(
                 name=name,
                 standard_hours=standard_hours,
                 base_salary=base_salary,
@@ -225,7 +236,18 @@ def add_salary_structure(request):
                 deduction=deduction
             )
             
-            return JsonResponse({'success': True})
+            # Return the new position data as JSON
+            return JsonResponse({
+                'success': True,
+                'position': {
+                    'id': new_position.id,
+                    'name': new_position.name,
+                    'standard_hours': new_position.standard_hours,
+                    'base_salary': str(new_position.base_salary),
+                    'bonus': str(new_position.bonus),
+                    'deduction': str(new_position.deduction),
+                }
+            })
             
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
@@ -369,4 +391,7 @@ def home_page(request):
 def employee_dashboard(request):
     return render(request, 'payroll_app/employee.html')
 def admin_dashboard(request):
-    return render(request, 'payroll_app/Admin.html')
+    positions = Position.objects.all().order_by('name')
+    return render(request, 'payroll_app/admin.html', {'positions': positions})
+
+    return render(request, 'admin.html', {'employees': employees})
