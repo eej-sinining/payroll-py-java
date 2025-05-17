@@ -1,35 +1,35 @@
-"""
-URL configuration for payroll project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path
-from payroll_app import views
 from django.conf import settings
 from django.conf.urls.static import static
-
+from payroll_app import views
 
 urlpatterns = [
-    path('admin', admin.site.urls),
-    path('', views.homepage, name='home'),
-    path('home/', views.homepage, name='home'),
-    path('super/', views.employee_records),
+    # Admin site
+    path('admin/', admin.site.urls),  # Added trailing slash for consistency
+    
+    # Authentication
+    path('', views.link, name='home-redirect'),  # Main entry point
+    path('home/', views.home_page, name='home'),
+    path('login/', views.login_view, name='login'),  # Added login URL
+    path('logout/', views.logout, name='logout'),
+    
+    # Dashboards
     path('employee-dashboard/', views.employee_dashboard, name='employee_dashboard'),
+    path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),  # Fixed to use admin_dashboard view
+    
+    # Employee management
+    path('employee-records/', views.employee_records, name='employee_records'),  # Better naming
     path('create-employee/', views.create_employee, name='create_employee'),
-    path('delete_employee/<int:employee_id>/', views.delete_employee, name='delete_employee'),
-    path('add_salary_structure/', views.add_salary_structure, name='add_salary_structure'),
-] 
+    path('delete-employee/<int:employee_id>/', views.delete_employee, name='delete_employee'),
+    
+    # Salary structure
+    path('add-salary-structure/', views.add_salary_structure, name='add_salary_structure'),
+    
+    # Java service
+    path('run-java-payroll/', views.run_service_java, name='run_java_payroll'),  # Added name parameter
+]
 
-path('run-java-payroll/', views.run_service_java),
+# Serve media files in development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.hashers import make_password, check_password
 from django.core.validators import MinValueValidator
 from django.utils import timezone
 
@@ -110,33 +111,21 @@ class Deduction(models.Model):
 class Admin(models.Model):
     username = models.CharField(max_length=50, unique=True)
     password = models.CharField(max_length=255)
+    is_active = models.BooleanField(default=True)
 
-# class CustomUserManager(BaseUserManager):
-#     def create_user(self, username, password=None, **extra_fields):
-#         if not username:
-#             raise ValueError("The Username must be set")
-#         user = self.model(username=username, **extra_fields)
-#         user.set_password(password)
-#         user.save()
-#         return user
+    def set_password(self, raw_password):
+        self.password = make_password(raw_password)
 
-#     def create_superuser(self, username, password=None, **extra_fields):
-#         extra_fields.setdefault('is_superuser', True)
-#         extra_fields.setdefault('is_staff', True)
-#         return self.create_user(username, password, **extra_fields)
+    def check_password(self, raw_password):
+        return check_password(raw_password, self.password)
 
-# class CustomUser(AbstractBaseUser, PermissionsMixin):
-#     userID = models.AutoField(primary_key=True)
-#     username = models.CharField(max_length=255, unique=True)
-#     role = models.CharField(max_length=50)
-#     is_active = models.BooleanField(default=True)
-#     is_staff = models.BooleanField(default=False)
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     employeeID = models.ForeignKey('Employee', null=True, on_delete=models.SET_NULL)
+    class Meta:
+        db_table = 'payroll_app_admin'  # Ensures Django uses the correct table name
 
-#     objects = CustomUserManager()
+    def __str__(self):
+        return self.username
+    
 
-#     USERNAME_FIELD = 'username'
 class CustomUserManager(BaseUserManager):
     def create_user(self, username, password=None, **extra_fields):
         if not username:

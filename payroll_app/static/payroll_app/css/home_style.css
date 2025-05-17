@@ -225,16 +225,16 @@
       }
       
       .user_options-forms .forms_buttons-action {
-          background-color: #e8716d;
-          border-radius: 3px;
-          padding: 10px 35px;
-          font-size: 1rem;
-          font-family: 'Montserrat', sans-serif;
-          font-weight: 300;
-          color: #fff;
-          text-transform: uppercase;
-          letter-spacing: 0.1rem;
-          transition: background-color 0.2s ease-in-out;
+        background-color: #e8716d;
+        border-radius: 3px;
+        padding: 10px 35px;
+        font-size: 1rem;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 300;
+        color: #fff;
+        text-transform: uppercase;
+        letter-spacing: 0.1rem;
+        transition: background-color 0.2s ease-in-out;
       }
       
       .user_options-forms .forms_buttons-action:hover {
@@ -309,3 +309,14 @@
               padding: 50px 45px;
           }
       }
+
+.error-message {
+    color: #ff4444;
+    margin-top: 10px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.messages {
+    margin-top: 15px;
+}

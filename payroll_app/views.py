@@ -1,4 +1,3 @@
-
 import os
 import subprocess
 from decimal import Decimal
@@ -7,134 +6,156 @@ from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
 from django.db import IntegrityError
+from django.views.decorators.http import require_http_methods
+from django.contrib.auth.decorators import login_required
 
-from .models import Employee, CustomUser, Position
-from .forms import LoginForm, EmployeeForm 
-from django.http import JsonResponse
+from .models import Employee, CustomUser, Position, Admin
+from .forms import LoginForm, EmployeeForm
 
-def homepage(request):
+# Constants
+JAVA_DIR = os.path.join(os.path.dirname(__file__), 'java_files')
+JAVA_FILE = 'service.java'
+JAVA_CLASS = 'service'
+PROCESS_TIMEOUT = 10
+
+@require_http_methods(["GET"])
+def link(request):
+    """Route users based on their authentication status and role."""
+    if not request.session.get('is_logged_in'):
+        print("DEBUG: User is not logged in.")
+        return redirect('home')
+
+    username = request.session.get('username')
+    print("DEBUG: Username from session:", username)
+
+    try:
+        # Print all admin usernames from the DB
+        print("DEBUG: All admin usernames in DB:")
+        for admin in Admin.objects.all():
+            print(f"- {admin.username}")
+
+        # Check if this session username is an admin
+        if Admin.objects.filter(username=username).exists():
+            print("DEBUG: Matched admin, redirecting to admin_dashboard")
+            return redirect('admin_dashboard')
+        else:
+            print("DEBUG: Not an admin, redirecting to employee_dashboard")
+            return redirect('employee_dashboard')
+
+    except Exception as e:
+        print("DEBUG: Exception occurred in link():", str(e))
+        return redirect('home')
+
+@require_http_methods(["GET"])
+def home_page(request):
+    """Render home/landing page."""
+    return render(request, 'payroll_app/home.html')
+
+@login_required
+def employee_dashboard(request):
+    """Render employee dashboard."""
     return render(request, 'payroll_app/employee.html')
 
+@login_required
+def admin_dashboard(request):
+    """Render admin dashboard."""
+    return render(request, 'payroll_app/admin.html')
+
+@require_http_methods(["GET", "POST"])
 def login_view(request):
-    """Handle user authentication"""
     if request.method == 'POST':
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            user = authenticate(
-                request,
-                username=form.cleaned_data['username'],
-                password=form.cleaned_data['password'],
-            )
-            if user is not None:
-                login(request, user)
-                return redirect('payroll_app:dashboard')
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '').strip()
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            if CustomUser.objects.get(username=username).role == 'Admin':
+                return redirect('admin_dashboard')
             else:
-                messages.error(request, 'Invalid username or password')
+                return redirect('employee_dashboard')
         else:
-            messages.error(request, 'Please correct the errors below')
-        return render(request, 'payroll_app/home.html', {'form': form})
-    return redirect('payroll_app:homepage')
-
+            messages.error(request, 'Invalid username or password')
+    return redirect('home')
+    
+@login_required
+@require_http_methods(["GET"])
 def employee_records(request):
-    employees = Employee.objects.all().order_by('id')
-    positions = Position.objects.filter(is_active=True).order_by('id')  # Get active positions
-    form = EmployeeForm()
+    """Display all employee records with form for new employees."""
     return render(request, 'payroll_app/Admin.html', {
-        'employees': employees,
-        'employee_form': form,
-        'positions': positions  # Add positions to the context
+        'employees': Employee.objects.all().order_by('id'),
+        'employee_form': EmployeeForm(),
+        'positions': Position.objects.filter(is_active=True).order_by('id')
     })
-    
+
+@login_required
+@require_http_methods(["POST"])
 def create_employee(request):
-    if request.method == 'POST':
-        try:
-            # Get position instance
-            position_id = request.POST.get('position')
-            try:
-                position = Position.objects.get(id=position_id, is_active=True)
-            except Position.DoesNotExist:
-                return JsonResponse({'success': False, 'error': 'Invalid position selected'})
-            
-            # Create the Employee - standard_hours now comes from position
-            employee = Employee(
-                first_name=request.POST.get('first_name'),
-                last_name=request.POST.get('last_name'),
-                position=position,
-                hourly_rate=position.base_salary,  # From position
-                contact=request.POST.get('contact'),
-                is_active=request.POST.get('is_active', 'off') == 'on'
-            )
-            employee.save()
-            
-            # Then create the CustomUser account
-            user = CustomUser.objects.create_user(
-                username=request.POST.get('username'),
-                password=request.POST.get('password'),
-                role='employee',
-                is_active=request.POST.get('is_active', 'off') == 'on',
-                employeeID=employee
-            )
-
-            return JsonResponse({'success': True})
-        except IntegrityError as e:
-            if 'employee' in locals():
-                employee.delete()
-            return JsonResponse({'success': False, 'error': 'Username already exists'})
-        except Exception as e:
-            if 'employee' in locals():
-                employee.delete()
-            if 'user' in locals():
-                user.delete()
-            return JsonResponse({'success': False, 'error': str(e)})
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
-
-
-def add_salary_structure(request):
-    if request.method == 'POST':
-        try:
-            name = request.POST.get('name')
-            standard_hours = int(request.POST.get('standard_hours', 40))
-            base_salary = Decimal(request.POST.get('base_salary'))
-            bonus = Decimal(request.POST.get('bonus', 0))
-            deduction = Decimal(request.POST.get('deduction', 0))
-            
-            # Create new position with salary structure
-            Position.objects.create(
-                name=name,
-                standard_hours=standard_hours,
-                base_salary=base_salary,
-                bonus=bonus,
-                deduction=deduction
-            )
-            
-            return JsonResponse({'success': True})
-            
-        except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
-    
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
-
-def run_service_java(request):
-    # Get parameters from request if needed
-    args = request.GET.getlist('args', [])  # Example: get arguments from query string
-    
-    java_folder = os.path.join(os.path.dirname(__file__), 'java_files')
-    java_filename = 'service.java'
-    classname = 'service'
-
-    # Security: Restrict file operations to specific directory
+    """Create new employee and associated user account."""
     try:
-        if not os.path.exists(os.path.join(java_folder, java_filename)):
+        position = Position.objects.get(
+            id=request.POST.get('position'),
+            is_active=True
+        )
+        
+        employee = Employee.objects.create(
+            first_name=request.POST.get('first_name'),
+            last_name=request.POST.get('last_name'),
+            position=position,
+            hourly_rate=position.base_salary,
+            contact=request.POST.get('contact'),
+            is_active=request.POST.get('is_active', 'off') == 'on'
+        )
+        
+        CustomUser.objects.create_user(
+            username=request.POST.get('username'),
+            password=request.POST.get('password'),
+            role='employee',
+            is_active=request.POST.get('is_active', 'off') == 'on',
+            employeeID=employee
+        )
+        
+        return JsonResponse({'success': True})
+    
+    except Position.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Invalid position'})
+    except IntegrityError:
+        return JsonResponse({'success': False, 'error': 'Username exists'})
+    except Exception as e:
+        Employee.objects.filter(id=getattr(employee, 'id', None)).delete()
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_http_methods(["POST"])
+def add_salary_structure(request):
+    """Create new salary position structure."""
+    try:
+        Position.objects.create(
+            name=request.POST.get('name'),
+            standard_hours=int(request.POST.get('standard_hours', 40)),
+            base_salary=Decimal(request.POST.get('base_salary')),
+            bonus=Decimal(request.POST.get('bonus', 0)),
+            deduction=Decimal(request.POST.get('deduction', 0))
+        )
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_http_methods(["GET"])
+def run_service_java(request):
+    """Compile and execute Java service with security checks."""
+    try:
+        java_path = os.path.join(JAVA_DIR, JAVA_FILE)
+        if not os.path.exists(java_path):
             return HttpResponse('Service not found', status=404)
 
         # Compile Java
         compile_result = subprocess.run(
-            ['javac', java_filename],
-            cwd=java_folder,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            ['javac', JAVA_FILE],
+            cwd=JAVA_DIR,
+            capture_output=True,
             text=True,
-            timeout=10
+            timeout=PROCESS_TIMEOUT
         )
         if compile_result.returncode != 0:
             return HttpResponse(
@@ -144,42 +165,38 @@ def run_service_java(request):
 
         # Execute Java
         run_result = subprocess.run(
-            ['java', classname] + args,
-            cwd=java_folder,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            ['java', JAVA_CLASS] + request.GET.getlist('args', []),
+            cwd=JAVA_DIR,
+            capture_output=True,
             text=True,
-            timeout=10
+            timeout=PROCESS_TIMEOUT
         )
-        if run_result.returncode != 0:
-            return HttpResponse(
-                f"Runtime error:\n{run_result.stderr}",
-                status=500
-            )
-
-        return HttpResponse(f"Java Output:\n\n{run_result.stdout}")
-
+        return HttpResponse(
+            run_result.stdout if run_result.returncode == 0 
+            else f"Runtime error:\n{run_result.stderr}",
+            status=200 if run_result.returncode == 0 else 500
+        )
     except subprocess.TimeoutExpired:
         return HttpResponse('Process timed out', status=500)
     except Exception as e:
         return HttpResponse(f"Error: {str(e)}", status=500)
+
+@login_required
+@require_http_methods(["POST"])
 def delete_employee(request, employee_id):
+    """Delete employee and associated user account."""
     try:
         employee = Employee.objects.get(id=employee_id)
-        
-        # Delete the associated CustomUser if it exists
-        try:
-            custom_user = CustomUser.objects.get(employeeID=employee)
-            custom_user.delete()
-        except CustomUser.DoesNotExist:
-            pass  # No user associated, continue with employee deletion
-            
+        CustomUser.objects.filter(employeeID=employee).delete()
         employee.delete()
         return JsonResponse({'success': True})
     except Employee.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'Employee not found'})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
-    
-def employee_dashboard(request):
-    return render(request, 'payroll_app/employee.html')
+
+@require_http_methods(["GET"])
+def logout(request):
+    """Log out user and clear session."""
+    request.session.flush()
+    return redirect('home')
