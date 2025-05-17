@@ -1,8 +1,9 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, User
 from django.contrib.auth.hashers import make_password, check_password
 from django.core.validators import MinValueValidator
 from django.utils import timezone
+from django.conf import settings
 
 class Position(models.Model):
     name = models.CharField(
@@ -163,3 +164,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.username
+
+class Attendance(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    date = models.DateField(auto_now_add=True)
+    time_in = models.TimeField(null=True, blank=True)
+    time_out = models.TimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.date}"

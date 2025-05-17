@@ -16,46 +16,9 @@
     <nav class="navbar navbar-expand-custom navbar-mainbg">
     <div class="d-flex align-items-center">
         <a class="navbar-brand navbar-logo" href="#">Welcome Admin!</a>
-<<<<<<< HEAD
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <i class="fas fa-bars text-white"></i>
         </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav ml-auto">
-                <div class="hori-selector">
-                    <div class="left"></div>
-                    <div class="right"></div>
-                </div>               
-                <li class="nav-item active">
-                    <a class="nav-link" href="javascript:void(0);"><i class="far fa-address-book"></i>Employee Records</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="javascript:void(0);"><i class="fas fa-business-time"></i>Attendance</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="javascript:void(0);"><i class="fas fa-balance-scale"></i>Salary Setup</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="javascript:void(0);"><i class="fas fa-dollar-sign"></i>Payroll</a>
-                </li> 
-                        <li class="nav-item">
-                    <a class="nav-link" href="{% url 'logout' %}"><i class="fas fa-dollar-sign"></i>Logout</a>
-                </li> 
-                
-            </ul>
-=======
-        <!-- Dropdown Button -->
-        <div class="dropdown ml-2">
-            <button class="btn dropdown-toggle admin-dropdown" type="button" id="adminDropdown" 
-                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            </button>
-            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="adminDropdown">
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item text-danger">
-                    <i class="fas fa-sign-out-alt mr-2"></i>Logout</a>
-            </div>
->>>>>>> c8d8a1bfa1d6655158f8bc9adeaca9fcbfa800f7
-        </div>
     </div>
     
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" 
@@ -80,7 +43,10 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="javascript:void(0);"><i class="fas fa-dollar-sign"></i>Payroll</a>
-            </li>                        
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'logout' %}"><i class="fas fa-dollar-sign"></i>Logout</a>
+            </li>                             
         </ul>
     </div>
 </nav>
