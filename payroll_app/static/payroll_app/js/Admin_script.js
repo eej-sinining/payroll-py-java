@@ -31,7 +31,27 @@ function test() {
         });
     });
 }
-
+// Handle admin dropdown
+$(document).ready(function() {
+    // Close dropdown when clicking outside
+    $(document).click(function(e) {
+        if (!$(e.target).closest('.dropdown').length) {
+            $('.dropdown-menu').removeClass('show');
+        }
+    });
+    
+    // Keep dropdown open when clicking inside
+    $('.dropdown-menu').click(function(e) {
+        e.stopPropagation();
+    });
+    
+    // Make sure dropdown works on mobile
+    $('.admin-dropdown').click(function() {
+        var dropdown = $(this).next('.dropdown-menu');
+        $('.dropdown-menu').not(dropdown).removeClass('show');
+        dropdown.toggleClass('show');
+    });
+});
 $(document).ready(function () {
     setTimeout(function () {
         test();

@@ -210,7 +210,89 @@
     </div>
   </div>
 </div>
+<!-- Employee Edit Button Modal -->
+<div class="modal fade" id="editEmployeeModal" tabindex="-1" aria-labelledby="editEmployeeModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editEmployeeModalLabel">Edit Employee</h5>
+      </div>
+      <form id="editEmployeeForm" method="post" action="">
+        {% csrf_token %}
+        <input type="hidden" id="editEmployeeId" name="employee_id">
+        <div class="modal-body">
+          
+          <div class="mb-4">
+            <h6 class="mb-3"><strong>Personal Information</strong></h6>
+            <div class="mb-3">
+              <label for="editFirstName" class="form-label">First Name</label>
+              <input type="text" class="form-control" id="editFirstName" name="first_name" required>
+            </div>
+            <div class="mb-3">
+              <label for="editLastName" class="form-label">Last Name</label>
+              <input type="text" class="form-control" id="editLastName" name="last_name" required>
+            </div>
+            <div class="mb-3">
+              <label for="editContact" class="form-label">Contact</label>
+              <input type="text" class="form-control" id="editContact" name="contact" required>
+            </div>
+          </div>
 
+          <!-- Employment Details Section -->
+          <div class="mb-4">
+            <h6 class="mb-3"><strong>Employment Details</strong></h6>
+            <div class="mb-3">
+              <label for="editPosition" class="form-label">Position</label>
+              <!-- In the edit modal's position select -->
+              <select class="form-select" id="editPosition" name="position" required>
+                <option value="" selected disabled>Select a position</option>
+               {% for position in positions %}
+                <option value="{{ position.id }}" 
+                data-hourly-rate="{{ position.base_salary }}"
+                data-standard-hours="{{ position.standard_hours }}">
+                 {{ position.name }}
+               </option>
+                   {% endfor %}
+                <option value="none">No Position</option>
+             </select>
+            </div>
+            <div class="mb-3">
+              <label for="editHourlyRate" class="form-label">Hourly Rate (₱)</label>
+              <input type="number" step="0.01" class="form-control" id="editHourlyRate" name="hourly_rate" required readonly>
+            </div>
+            <div class="mb-3">
+              <label for="editStandardHours" class="form-label">Standard Hours</label>
+              <input type="number" class="form-control" id="editStandardHours" name="standard_hours" required readonly>
+            </div>
+          </div>
+
+          <!-- Account Information Section -->
+          <div class="mb-4">
+            <h6 class="mb-3"><strong>Account Information</strong></h6>
+            <div class="mb-3">
+              <label for="editUsername" class="form-label">Username</label>
+              <input type="text" class="form-control" id="editUsername" name="username" required>
+              <div class="form-text">Username must be unique.</div>
+            </div>
+            <div class="mb-3">
+              <label for="editPassword" class="form-label">Password</label>
+              <input type="password" class="form-control" id="editPassword" name="password" placeholder="Leave blank to keep current password">
+              <div class="form-text">Minimum 8 characters with at least 1 number and 1 special character.</div>
+            </div>
+            <div class="mb-3 form-check">
+              <input type="checkbox" class="form-check-input" id="editIsActive" name="is_active">
+              <label class="form-check-label" for="editIsActive">Account is active</label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Update Employee</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
 <!-- Attendance Content -->
 <div class="container mt-4" id="attendanceContent" style="display: none;">
@@ -225,46 +307,38 @@
           </div>
           
           <div class="card mb-4">
-              <div class="card-header bg-light">
-                  <h5 class="mb-0">Today's Summary</h5>
-              </div>
-              <div class="card-body">
-                  <div class="row text-center">
-                      <div class="col-md-3 mb-3">
-                          <div class="card bg-success text-white">
-                              <div class="card-body">
-                                  <h2>{{ present_count }}</h2>
-                                  <p class="mb-0">Present</p>
-                              </div>
-                          </div>
-                      </div>
-                      <div class="col-md-3 mb-3">
-                          <div class="card bg-danger text-white">
-                              <div class="card-body">
-                                  <h2>{{ absent_count }}</h2>
-                                  <p class="mb-0">Absent</p>
-                              </div>
-                          </div>
-                      </div>
-                      <div class="col-md-3 mb-3">
-                          <div class="card bg-warning text-white">
-                              <div class="card-body">
-                                  <h2>{{ late_count }}</h2>
-                                  <p class="mb-0">Late</p>
-                              </div>
-                          </div>
-                      </div>
-                      <div class="col-md-3 mb-3">
-                          <div class="card bg-info text-white">
-                              <div class="card-body">
-                                  <h2>{{ leave_count }}</h2>
-                                  <p class="mb-0">On Leave</p>
-                              </div>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-          </div>
+             <div class="card-header bg-light">
+             <h5 class="mb-0 text-center">Today's Summary</h5>
+           </div>
+               <div class="card-body">
+                    <div class="row justify-content-center">
+                    <div class="col-auto col-sm-3 mb-3">  <!-- Changed to col-auto -->
+                    <div class="card bg-success text-white h-100" style="min-width: 150px;">
+                    <div class="card-body text-center">
+                        <h2 class="fs-3 fs-md-2">{{ present_count }}</h2>
+                        <p class="mb-0">Present</p>
+                    </div>
+                    </div>
+                    </div>
+                    <div class="col-auto col-sm-3 mb-3">  <!-- Changed to col-auto -->
+                        <div class="card bg-danger text-white h-100" style="min-width: 150px;">
+                        <div class="card-body text-center">
+                        <h2 class="fs-3 fs-md-2">{{ absent_count }}</h2>
+                        <p class="mb-0">Absent</p>
+                        </div>
+                        </div>
+                    </div>
+                    <div class="col-auto col-sm-3 mb-3">  <!-- Changed to col-auto -->
+                    <div class="card bg-warning text-white h-100" style="min-width: 150px;">
+                        <div class="card-body text-center">
+                        <h2 class="fs-3 fs-md-2">{{ late_count }}</h2>
+                        <p class="mb-0">Late</p>
+                        </div>
+                       </div>
+                    </div>
+                 </div>
+             </div>
+         </div>
           
           <div class="table-responsive">
               <table class="table table-striped">
@@ -357,6 +431,7 @@
             <tr>
                 <th>ID</th>
                 <th>Position</th>
+                <th>Standard Hours</th>
                 <th>Base Salary</th>
                 <th>Deduction</th>
                 <th>Bonus</th>
@@ -423,7 +498,46 @@
     </div>
   </div>
 </div>
-
+<!-- Edit Salary Structure Modal -->
+<div class="modal fade" id="editSalaryStructureModal" tabindex="-1" aria-labelledby="editSalaryStructureModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editSalaryStructureModalLabel">Edit Salary Structure</h5>       
+      </div>
+      <form id="editSalaryStructureForm" method="post" action="">
+        {% csrf_token %}
+        <input type="hidden" id="editPositionId" name="position_id">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="editPositionName" class="form-label">Position Name</label>
+            <input type="text" class="form-control" id="editPositionName" name="name" required>
+          </div>
+          <div class="mb-3">
+            <label for="editStandardHours" class="form-label">Standard Hours</label>
+            <input type="number" class="form-control" id="editStandardHours" name="standard_hours" required>
+          </div>
+          <div class="mb-3">
+            <label for="editBaseSalary" class="form-label">Base Salary (₱)</label>
+            <input type="number" step="0.01" class="form-control" id="editBaseSalary" name="base_salary" required>
+          </div>
+          <div class="mb-3">
+            <label for="editBonus" class="form-label">Bonus (₱)</label>
+            <input type="number" step="0.01" class="form-control" id="editBonus" name="bonus">
+          </div>
+          <div class="mb-3">
+            <label for="editDeduction" class="form-label">Deduction (₱)</label>
+            <input type="number" step="0.01" class="form-control" id="editDeduction" name="deduction">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 <!-- Payroll Content -->
 <div class="container mt-4" id="payrollContent" style="display: none;">
   <div class="row">
@@ -509,6 +623,7 @@
                   <th>Overtime</th>
                   <th>Deductions</th>
                   <th>Net Salary</th>
+                  <th>Bonus</th>
                   <th>Actions</th>
                 </tr>
               </thead>
