@@ -9,7 +9,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),  # Added trailing slash for consistency
     
     # Authentication
-    path('', views.link, name='home-redirect'),  # Main entry point
+    path('', views.home_page, name='home-redirect'),  # Main entry point
     path('home/', views.home_page, name='home'),
     path('login/', views.login_view, name='login'),  # Added login URL
     path('logout/', views.logout, name='logout'),

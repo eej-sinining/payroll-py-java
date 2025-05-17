@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.conf import settings
 
 class Position(models.Model):
+    id = models.AutoField(primary_key=True)
     name = models.CharField(
         max_length=30, 
         unique=True,
@@ -60,6 +61,7 @@ class Position(models.Model):
 
 
 class Employee(models.Model):
+    id = models.AutoField(primary_key=True)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     position = models.ForeignKey(Position, on_delete=models.SET_NULL, null=True)
