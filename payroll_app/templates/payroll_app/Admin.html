@@ -9,8 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="{% static 'payroll_app/css/Admin_style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
-
 
 
 <body>
@@ -119,7 +119,7 @@
                       </tr>
                       {% empty %}
                       <tr>
-                          <td colspan="9" class="text-center">No employees found</td>
+                          <td colspan="8" class="text-center">No employees found</td>
                       </tr>
                       {% endfor %}
                   </tbody>
@@ -137,7 +137,6 @@
         {% csrf_token %}
         <div class="modal-header">
           <h5 class="modal-title">Add New Employee</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <!-- Basic Information -->
@@ -469,44 +468,47 @@
 </div>
 
 <!-- Salary Structure Button Modal -->
-<div class="modal fade" id="salaryStructureModal" tabindex="-1" aria-labelledby="salaryStructureModalLabel" aria-hidden="true">
+<!-- Add Salary Structure Modal -->
+<div class="modal fade" id="salaryModal" tabindex="-1" aria-labelledby="salaryModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="salaryStructureModalLabel">Add Salary Structure</h5>       
+        <h5 class="modal-title" id="salaryModalLabel">Add New Salary Structure</h5>
+        
       </div>
-      <form id="salaryStructureForm" method="post" action="{% url 'add_salary_structure' %}">
-        {% csrf_token %}
-        <div class="modal-body">
+      <div class="modal-body">
+        <form id="salaryForm">
+          {% csrf_token %}
           <div class="mb-3">
-            <label for="positionName" class="form-label">Position Name</label>
-            <input type="text" class="form-control" id="positionName" name="name" required>
+            <label for="name" class="form-label">Position Name</label>
+            <input type="text" class="form-control" id="name" name="name" required>
           </div>
           <div class="mb-3">
-            <label for="standardHours" class="form-label">Standard Hours</label>
-            <input type="number" class="form-control" id="standardHours" name="standard_hours" value="1" required>
+            <label for="standard_hours" class="form-label">Standard Hours</label>
+            <input type="number" class="form-control" id="standard_hours" name="standard_hours" value="40" required>
           </div>
           <div class="mb-3">
-            <label for="baseSalary" class="form-label">Base Salary (₱)</label>
-            <input type="number" step="0.01" class="form-control" id="baseSalary" name="base_salary" required>
+            <label for="base_salary" class="form-label">Base Salary</label>
+            <input type="number" step="0.01" class="form-control" id="base_salary" name="base_salary" required>
           </div>
           <div class="mb-3">
-            <label for="bonus" class="form-label">Bonus (₱)</label>
-            <input type="number" step="0.01" class="form-control" id="bonus" name="bonus" value="0">
+            <label for="bonus" class="form-label">Bonus</label>
+            <input type="number" step="0.01" class="form-control" id="bonus" name="bonus" value="0" required>
           </div>
           <div class="mb-3">
-            <label for="deduction" class="form-label">Deduction (₱)</label>
-            <input type="number" step="0.01" class="form-control" id="deduction" name="deduction" value="0">
+            <label for="deduction" class="form-label">Deduction</label>
+            <input type="number" step="0.01" class="form-control" id="deduction" name="deduction" value="0" required>
           </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary">Save Structure</button>
-        </div>
-      </form>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="submit" form="salaryForm" class="btn btn-danger">Save Changes</button>
+      </div>
     </div>
   </div>
 </div>
+
 <!-- Edit Salary Structure Modal -->
 <div class="modal fade" id="editSalaryStructureModal" tabindex="-1" aria-labelledby="editSalaryStructureModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -547,6 +549,7 @@
     </div>
   </div>
 </div>
+
 <!-- Payroll Content -->
 <div class="container mt-4" id="payrollContent" style="display: none;">
   <div class="row">
@@ -789,5 +792,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'payroll_app/js/Admin_script.js' %}"></script> 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
 </body>
 </html>

@@ -128,34 +128,24 @@ $(document).ready(function() {
     // Handle form submission via AJAX
     $(document).ready(function() {
     $('#employeeForm').submit(function(e) {
-        e.preventDefault();
-        
-        // Validate password complexity
-        const password = $('#password').val();
-        if (!/(?=.*\d)(?=.*[!@#$%^&*])/.test(password)) {
-            alert('Password must contain at least 1 number and 1 special character');
-            return;
-        }
-
-        $.ajax({
-            url: '/create-employee/',
-            method: 'POST',
-            data: $(this).serialize(),
-            headers: {
-                "X-CSRFToken": $('input[name="csrfmiddlewaretoken"]').val()
-            },
-            success: function(response) {
-                if(response.success) {
-                    location.reload(); // Refresh to show new employee
-                } else {
-                    alert('Error: ' + response.error);
-                }
-            },
-            error: function(xhr) {
-                alert('Server error: ' + xhr.statusText);
+    e.preventDefault();
+    
+    $.ajax({
+        url: '/create-employee/',
+        method: 'POST',
+        data: $(this).serialize(),
+        success: function(response) {
+            if(response.success) {
+                location.reload(); // Refresh to show new employee
+            } else {
+                alert('Error: ' + response.error);
             }
-        });
+        },
+        error: function(xhr) {
+            alert('Error: ' + xhr.responseText);
+        }
     });
+});
 });
 });
 
@@ -192,10 +182,16 @@ $(document).on('click', '.delete-employee', function() {
     }
 });
 
+//salary structure
 $(document).ready(function() {
     // Handle add salary structure button click
     $('#addSalaryStructure').click(function() {
         $('#salaryModal').modal('show');
+    });
+
+    // Handle form submission via button click
+    $('#saveSalaryBtn').click(function() {
+        $('#salaryForm').submit();
     });
 
     // Handle form submission
@@ -226,37 +222,37 @@ $(document).ready(function() {
 
     // Function to add new position to table
     function addPositionToTable(position) {
-    const formattedId = 'P' + String(position.id).padStart(3, '0');
-    const newRow = $(`
-        <tr>
-            <td>${formattedId}</td>
-            <td>${position.name}</td>
-            <td>${position.standard_hours} hrs</td>
-            <td>₱ ${position.base_salary}</td>
-            <td>₱ ${position.bonus}</td>
-            <td>₱ ${position.deduction}</td>
-            <td>
-                <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
-                <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-            </td>
-        </tr>
-    `);
-    
-    // Find the correct position to insert (alphabetical by name)
-    let inserted = false;
-    $('#positionsTableBody tr').each(function() {
-        if ($(this).find('td:nth-child(2)').text().localeCompare(position.name) > 0) {
-            $(this).before(newRow);
-            inserted = true;
-            return false; // break loop
+        const formattedId = 'P' + String(position.id).padStart(3, '0');
+        const newRow = $(`
+            <tr>
+                <td>${formattedId}</td>
+                <td>${position.name}</td>
+                <td>${position.standard_hours} hrs</td>
+                <td>₱ ${position.base_salary}</td>
+                <td>₱ ${position.bonus}</td>
+                <td>₱ ${position.deduction}</td>
+                <td>
+                    <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `);
+        
+        // Find the correct position to insert (alphabetical by name)
+        let inserted = false;
+        $('#positionsTableBody tr').each(function() {
+            if ($(this).find('td:nth-child(2)').text().localeCompare(position.name) > 0) {
+                $(this).before(newRow);
+                inserted = true;
+                return false; // break loop
+            }
+        });
+        
+        // If not inserted yet, append to end
+        if (!inserted) {
+            $('#positionsTableBody').append(newRow);
         }
-    });
-    
-    // If not inserted yet, append to end
-    if (!inserted) {
-        $('#positionsTableBody').append(newRow);
     }
-}
 });
 
 // Handle process payroll button
@@ -264,7 +260,7 @@ $("#processPayroll").click(function() {
     alert("Payroll ni Aybol");
 });
 
-//create employee
+//create employee 
 $(document).ready(function() {
     // Update hourly rate and standard hours when position changes
     $('#position').change(function() {
@@ -304,12 +300,11 @@ $(document).ready(function() {
     const statusClass = employee.is_active ? 'bg-success' : 'bg-secondary';
     const statusText = employee.is_active ? 'Active' : 'Inactive';
     
-    // Fix undefined names and format data properly
     const firstName = employee.first_name || '';
     const lastName = employee.last_name || '';
     const positionName = employee.position?.name || 'No Position';
-    const hourlyRate = employee.hourly_rate ? `₱${parseFloat(employee.hourly_rate).toFixed(2)}` : 'N/A';
-    const standardHours = employee.standard_hours ? `${employee.standard_hours} hrs` : 'N/A';
+    const baseSalary = employee.position?.base_salary ? `₱${parseFloat(employee.position.base_salary).toFixed(2)}` : 'N/A';
+    const standardHours = employee.position?.standard_hours ? `${employee.position.standard_hours} hrs` : 'N/A';
     const contact = employee.contact || 'N/A';
 
     const newRow = `
@@ -317,7 +312,7 @@ $(document).ready(function() {
             <td>E${String(employee.id).padStart(3, '0')}</td>
             <td>${firstName} ${lastName}</td>
             <td>${positionName}</td>
-            <td>${hourlyRate}</td>
+            <td>${baseSalary}</td>
             <td>${standardHours}</td>
             <td><span class="badge ${statusClass}">${statusText}</span></td>
             <td>${contact}</td>
@@ -391,5 +386,80 @@ $(document).ready(function() {
         error: function(error) {
             console.error("Error fetching employees:", error);
         }
+    });
+});
+
+//edit salary structure
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle edit form submission
+    const editForm = document.getElementById('editSalaryStructureForm');
+    if (editForm) {
+        editForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(editForm);
+            const positionId = document.getElementById('editPositionId').value;
+            
+            // Show loading state
+            const submitBtn = editForm.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+            
+            fetch(`/update_salary_structure/${positionId}/`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message and reload or update the page
+                    alert('Salary structure updated successfully!');
+                    location.reload(); // Or update the table dynamically
+                } else {
+                    alert('Error: ' + (data.error || 'Failed to update salary structure'));
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error.message);
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Save Changes';
+            });
+        });
+    }
+
+    // This function would be called when the edit button is clicked to populate the modal
+    function openEditModal(positionData) {
+        document.getElementById('editPositionId').value = positionData.id;
+        document.getElementById('editPositionName').value = positionData.name;
+        document.getElementById('editStandardHours').value = positionData.standard_hours;
+        document.getElementById('editBaseSalary').value = positionData.base_salary;
+        document.getElementById('editBonus').value = positionData.bonus || '';
+        document.getElementById('editDeduction').value = positionData.deduction || '';
+        
+        // Show the modal
+        var modal = new bootstrap.Modal(document.getElementById('editSalaryStructureModal'));
+        modal.show();
+    }
+
+    // Example of how to call openEditModal (you'll need to implement this based on your table)
+    // This would be triggered by your "Edit" buttons in the table
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const positionData = {
+                id: this.dataset.id,
+                name: this.dataset.name,
+                standard_hours: this.dataset.hours,
+                base_salary: this.dataset.salary,
+                bonus: this.dataset.bonus,
+                deduction: this.dataset.deduction
+            };
+            openEditModal(positionData);
+        });
     });
 });

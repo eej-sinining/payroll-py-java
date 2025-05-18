@@ -492,3 +492,34 @@ body {
     padding: 5px 10px;
     border-radius: 10px;
 }
+/* Loading spinner for modal */
+.modal-body.loading {
+    position: relative;
+    min-height: 100px;
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.modal-body.loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 30px;
+    height: 30px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-top-color: #e8716d;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Alert styling */
+.alert-container {
+    min-width: 300px;
+}

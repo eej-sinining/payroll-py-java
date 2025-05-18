@@ -148,7 +148,14 @@
 				<a href="#" class="bx bx-menu" id="menu-btn"></a>
 				<span class="nav-title">Dashboard</span>
 			</div>
-			<span>Welcome, {{ user.first_name }}</span>
+			
+			<span>Welcome, 
+    			{% if employee %}
+        			{{ employee.first_name }} {{ employee.last_name }}
+    			{% else %}
+        			{{ user.username }}
+    			{% endif %}
+			</span>
 		</nav>
 
 		<main id="mainContent">
@@ -266,21 +273,18 @@
 				<p id="receiptPeriod">Pay Period: </p>
 			</div>
 			<div class="receipt-details">
+				<h3>Employee Details</h3>
 				<div class="receipt-row">
 					<span>Employee Name:</span>
-					<span>{{ user.first_name }} {{ user.last_name }}</span>
+					<span>{{ employee.first_name }} {{ employee.last_name }}</span>
 				</div>
 				<div class="receipt-row">
 					<span>Employee ID:</span>
-					<span>EMP-{{ user.id }}</span>
-				</div>
-				<div class="receipt-row">
-					<span>Department:</span>
-					<span>IT Department</span>
+					<span>EMP-{{ employee.id }}</span>
 				</div>
 				<div class="receipt-row">
 					<span>Position:</span>
-					<span>Software Developer</span>
+					<span>{{ employee.position.name }}</span>
 				</div>
 			</div>
 			
@@ -288,15 +292,15 @@
 				<h3>Earnings</h3>
 				<div class="receipt-row">
 					<span>Basic Salary:</span>
-					<span id="receiptBasicPay">₱15,000.00</span>
+					<span id="receiptBasicPay">₱{{ employee.base_salary }}</span>
 				</div>
 				<div class="receipt-row">
 					<span>Overtime Pay:</span>
-					<span id="receiptOvertimePay">₱0.00</span>
+					<span id="receiptOvertimePay">₱{{ employee.overtime_pay }}</span>
 				</div>
 				<div class="receipt-row">
-					<span>Holiday Pay:</span>
-					<span id="receiptHolidayPay">₱0.00</span>
+					<span>Bonus Pay:</span>
+					<span id="receiptHolidayPay">₱{{ employee.position.bonus }}</span>
 				</div>
 				<div class="receipt-row total-row">
 					<span>Total Earnings:</span>

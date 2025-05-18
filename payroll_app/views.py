@@ -1,3 +1,4 @@
+from encodings.punycode import T
 import re
 import json
 import os
@@ -9,7 +10,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.db import IntegrityError
-from .models import Employee, CustomUser, Position
+from .models import Deduction, Employee, CustomUser, Position
 from .forms import LoginForm, EmployeeForm
 
 from django.views.decorators.http import require_POST
@@ -50,13 +51,11 @@ def login_view(request):
     return render(request, 'payroll_app/home.html', {'form': LoginForm()})
 
 def employee_records(request):
-    employees = Employee.objects.all().order_by('id')
-    positions = Position.objects.filter(is_active=True).order_by('id')  # Get active positions
-    form = EmployeeForm()
+    employees = Employee.objects.select_related('position').all().order_by('id')
+    positions = Position.objects.filter(is_active=True).order_by('id')
     return render(request, 'payroll_app/Admin.html', {
         'employees': employees,
-        'employee_form': form,
-        'positions': positions,  # Add positions to the context
+        'positions': positions,
     })
 
 def get_employee_data(request, employee_id):
@@ -389,7 +388,17 @@ def logout(request):
 def home_page(request):
     return render(request, 'payroll_app/home.html')
 def employee_dashboard(request):
-    return render(request, 'payroll_app/employee.html')
+    # Get the employee record associated with the current user
+    try:
+        employee = request.user.employeeID
+
+    except AttributeError:
+        employee = None
+    
+    return render(request, 'payroll_app/employee.html', {
+        'employee': employee
+
+    })
 def admin_dashboard(request):
     positions = Position.objects.all().order_by('name')
     return render(request, 'payroll_app/admin.html', {'positions': positions})
