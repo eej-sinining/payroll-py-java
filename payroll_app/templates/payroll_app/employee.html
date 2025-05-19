@@ -2,197 +2,194 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-	<!-- Boxicons -->
-	<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-
-	<!-- My CSS -->
-	<link rel="stylesheet" href="{% static 'payroll_app/css/employee_style.css' %}">
-
-	<title>Employee Dashboard</title>
-	<style>
-		/* Modal Styles */
-		.modal {
-			display: none;
-			position: fixed;
-			z-index: 1000;
-			left: 0;
-			top: 0;
-			width: 100%;
-			height: 100%;
-			background-color: rgba(0,0,0,0.5);
-			overflow: auto;
-		}
-		
-		.modal-content {
-			background-color: #fff;
-			margin: 10% auto;
-			padding: 20px;
-			border-radius: 5px;
-			box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-			width: 60%;
-			max-width: 600px;
-			position: relative;
-			animation: modalopen 0.3s;
-		}
-		
-		@keyframes modalopen {
-			from {opacity: 0; transform: translateY(-60px);}
-			to {opacity: 1; transform: translateY(0);}
-		}
-		
-		.close-modal {
-			position: absolute;
-			right: 15px;
-			top: 10px;
-			font-size: 24px;
-			cursor: pointer;
-			color: #555;
-		}
-		
-		.close-modal:hover {
-			color: #000;
-		}
-		
-		.receipt-header {
-			text-align: center;
-			margin-bottom: 15px;
-			border-bottom: 1px solid #ddd;
-			padding-bottom: 10px;
-		}
-		
-		.receipt-details {
-			margin-bottom: 20px;
-		}
-		
-		.receipt-row {
-			display: flex;
-			justify-content: space-between;
-			margin-bottom: 8px;
-			padding: 5px 0;
-		}
-		
-		.receipt-section {
-			margin-top: 15px;
-			border-top: 1px dashed #ddd;
-			padding-top: 10px;
-		}
-		
-		.total-row {
-			font-weight: bold;
-			border-top: 2px solid #ddd;
-			padding-top: 10px;
-			margin-top: 10px;
-		}
-		
-		/* Pagination Styles */
-		.pagination {
-			display: flex;
-			justify-content: center;
-			margin-top: 15px;
-			gap: 5px;
-		}
-		
-		.pagination button {
-			padding: 5px 10px;
-			border: 1px solid #ddd;
-			background: white;
-			cursor: pointer;
-			border-radius: 3px;
-		}
-		
-		.pagination button:hover:not(:disabled) {
-			background: #f0f0f0;
-		}
-		
-		.pagination button.active {
-			background: #3498db;
-			color: white;
-			border-color: #3498db;
-		}
-		
-		.pagination button:disabled {
-			opacity: 0.5;
-			cursor: not-allowed;
-		}
-		
-		/* Status message styles */
-		.status-message {
-			background-color: #f8f9fa;
-			padding: 10px 15px;
-			border-radius: 4px;
-			margin: 10px 0;
-			border-left: 4px solid #3498db;
-		}
-	</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <!-- My CSS -->
+    <link rel="stylesheet" href="{% static 'payroll_app/css/employee_style.css' %}">
+    <title>Employee Dashboard</title>
+    <style>
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            overflow: auto;
+        }
+        
+        .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            width: 60%;
+            max-width: 600px;
+            position: relative;
+            animation: modalopen 0.3s;
+        }
+        
+        @keyframes modalopen {
+            from {opacity: 0; transform: translateY(-60px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+        
+        .close-modal {
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #555;
+        }
+        
+        .close-modal:hover {
+            color: #000;
+        }
+        
+        .receipt-header {
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        
+        .receipt-details {
+            margin-bottom: 20px;
+        }
+        
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding: 5px 0;
+        }
+        
+        .receipt-section {
+            margin-top: 15px;
+            border-top: 1px dashed #ddd;
+            padding-top: 10px;
+        }
+        
+        .total-row {
+            font-weight: bold;
+            border-top: 2px solid #ddd;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+        
+        /* Pagination Styles */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+            gap: 5px;
+        }
+        
+        .pagination button {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        
+        .pagination button:hover:not(:disabled) {
+            background: #f0f0f0;
+        }
+        
+        .pagination button.active {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Status message styles */
+        .status-message {
+            background-color: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            border-left: 4px solid #3498db;
+        }
+    </style>
 </head>
 <body>
-	
-	<!-- SIDEBAR -->
-	<div id="sidebar">
-		<div id="spacer"></div>
-		<ul class="side-menu">
-			<li class="active"><a href="#" data-section="profileMenu"><i class="bx bx-user"></i> Profile</a></li>
-			<li><a href="#" data-section="reportsMenu"><i class="bx bx-file"></i> Reports</a></li>
-			<li><a href="#" data-section="attendanceMenu"><i class="bx bx-cog"></i> Attendance</a></li>
-			<li class="logout"><a href="{% url 'logout' %}"><i class="bx bx-log-out"></i> Logout</a></li>
-		</ul>
-	</div>
+    
+    <!-- SIDEBAR -->
+    <div id="sidebar">
+        <div id="spacer"></div>
+        <ul class="side-menu">
+            <li class="active"><a href="#" data-section="profileMenu"><i class="bx bx-user"></i> Profile</a></li>
+            <li><a href="#" data-section="reportsMenu"><i class="bx bx-file"></i> Reports</a></li>
+            <li><a href="#" data-section="attendanceMenu"><i class="bx bx-cog"></i> Attendance</a></li>
+            <li class="logout"><a href="{% url 'logout' %}"><i class="bx bx-log-out"></i> Logout</a></li>
+        </ul>
+    </div>
 
-	<!-- MAIN CONTENT -->
-	<div id="content">
-		<nav>
-			<div class="nav-left">
-				<a href="#" class="bx bx-menu" id="menu-btn"></a>
-				<span class="nav-title">Dashboard</span>
-			</div>
-			
-			<span>Welcome, 
-    			{% if employee %}
-        			{{ employee.first_name }} {{ employee.last_name }}
-    			{% else %}
-        			{{ user.username }}
-    			{% endif %}
-			</span>
-		</nav>
+    <!-- MAIN CONTENT -->
+    <div id="content">
+        <nav>
+            <div class="nav-left">
+                <a href="#" class="bx bx-menu" id="menu-btn"></a>
+                <span class="nav-title">Dashboard</span>
+            </div>
+            
+            <span>Welcome, 
+                {% if employee %}
+                    {{ employee.first_name }} {{ employee.last_name }}
+                {% else %}
+                    {{ user.username }}
+                {% endif %}
+            </span>
+        </nav>
 
-		<main id="mainContent">
-			<!-- Profile Section -->
-			<div id="profileMenu" class="content-section">
-				<div class="head-title">
-					<div class="left">
-						<h1>Profile Dashboard</h1>
-					</div>
-				</div>
-				<div id="spacer"></div>
-				<div class="box-info">
-					<div class="box-item">
-						<i class="bx bx-user"></i>
-						<div class="text">
-							<h3>Profile</h3>
-							<p>View and edit your profile details.</p>
-						</div>
-					</div>
-					<div class="box-item">
-						<i class="bx bx-calendar"></i>
-						<div class="text">
-							<h3>Attendance</h3>
-							<p>Track your attendance records.</p>
-						</div>
-					</div>
-					<div class="box-item">
-						<i class="bx bx-wallet"></i>
-						<div class="text">
-							<h3>Payroll</h3>
-							<p>View your salary details and payment history.</p>
-						</div>
-					</div>
-				</div>
-			</div>
+        <main id="mainContent">
+            <!-- Profile Section -->
+            <div id="profileMenu" class="content-section">
+                <div class="head-title">
+                    <div class="left">
+                        <h1>Profile Dashboard</h1>
+                    </div>
+                </div>
+                <div id="spacer"></div>
+                <div class="box-info">
+                    <div class="box-item">
+                        <i class="bx bx-user"></i>
+                        <div class="text">
+                            <h3>Profile</h3>
+                            <p>View and edit your profile details.</p>
+                        </div>
+                    </div>
+                    <div class="box-item">
+                        <i class="bx bx-calendar"></i>
+                        <div class="text">
+                            <h3>Attendance</h3>
+                            <p>Track your attendance records.</p>
+                        </div>
+                    </div>
+                    <div class="box-item">
+                        <i class="bx bx-wallet"></i>
+                        <div class="text">
+                            <h3>Payroll</h3>
+                            <p>View your salary details and payment history.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-			<!-- Reports Section -->
+            <!-- Reports Section -->
 			<div id="reportsMenu" class="content-section" style="display: none;">
 				<div class="head-title">
 					<div class="left">
@@ -207,7 +204,6 @@
 								<th>Pay Period</th>
 								<th>Basic Pay</th>
 								<th>Deductions</th>
-								<th>Net Pay</th>
 								<th>Receipt</th>
 							</tr>
 						</thead>
@@ -215,378 +211,322 @@
 							<tr>
 								<td>April 16–30, 2025</td>
 								<td>₱15,000</td>
-								<td>₱2,000</td>
-								<td>₱13,000</td>
+								<td>₱120.00</td>
 								<td><a href="#" class="btn-view" data-period="Apr-16-30-2025">View</a></td>
-							</tr>
-							<tr>
-								<td>May 1–15, 2025</td>
-								<td>₱15,000</td>
-								<td>₱1,800</td>
-								<td>₱13,200</td>
-								<td><a href="#" class="btn-view" data-period="May-1-15-2025">View</a></td>
 							</tr>
 						</tbody>
 					</table>
 				</div>
 			</div>
 
-			<!-- Attendance Section -->
-			<div id="attendanceMenu" class="content-section" style="display: none;">
-				<div class="head-title">
-					<div class="left">
-						<h1>Attendance</h1>
-					</div>
-				</div>
-				<div class="btns">
-					<button id="timeInBtn" class="Time-in">Time-in</button>
-					<button class="Time-out">Time-out</button>
-				</div>
-				<div>
-					<table>
-						<tr>
-							<th>Date</th>
-							<th>Time - in</th>
-							<th>Time - out</th>
-						</tr>
-						{% for record in attendance_records %}
-						<tr>
-							<td>{{ record.date|date:"M d, Y" }}</td>
-							<td>{{ record.time_in|default:"--" }}</td>
-							<td>{{ record.time_out|default:"--" }}</td>
-						</tr>
-						{% empty %}
-						<tr><td colspan="3">No attendance records yet.</td></tr>
-						{% endfor %}
-					</table>
-				</div>
-			</div>
-		</main>
-	</div>
-
-	<!-- Receipt Modal -->
-	<div id="receiptModal" class="modal">
-		<div class="modal-content">
-			<span class="close-modal">&times;</span>
-			<div class="receipt-header">
-				<h2>Payroll Receipt</h2>
-				<p id="receiptPeriod">Pay Period: </p>
-			</div>
-			<div class="receipt-details">
-				<h3>Employee Details</h3>
-				<div class="receipt-row">
-					<span>Employee Name:</span>
-					<span>{{ employee.first_name }} {{ employee.last_name }}</span>
-				</div>
-				<div class="receipt-row">
-					<span>Employee ID:</span>
-					<span>EMP-{{ employee.id }}</span>
-				</div>
-				<div class="receipt-row">
-					<span>Position:</span>
-					<span>{{ employee.position.name }}</span>
-				</div>
-			</div>
-			
-			<div class="receipt-section">
-				<h3>Earnings</h3>
-				<div class="receipt-row">
-					<span>Basic Salary:</span>
-					<span id="receiptBasicPay">₱{{ employee.base_salary }}</span>
-				</div>
-				<div class="receipt-row">
-					<span>Overtime Pay:</span>
-					<span id="receiptOvertimePay">₱{{ employee.overtime_pay }}</span>
-				</div>
-				<div class="receipt-row">
-					<span>Bonus Pay:</span>
-					<span id="receiptHolidayPay">₱{{ employee.position.bonus }}</span>
-				</div>
-				<div class="receipt-row total-row">
-					<span>Total Earnings:</span>
-					<span id="receiptTotalEarnings">₱15,000.00</span>
-				</div>
-			</div>
-			
-			<div class="receipt-section">
-				<h3>Deductions</h3>
-				<div class="receipt-row">
-					<span>SSS:</span>
-					<span id="receiptSSS">₱600.00</span>
-				</div>
-				<div class="receipt-row">
-					<span>PhilHealth:</span>
-					<span id="receiptPhilHealth">₱300.00</span>
-				</div>
-				<div class="receipt-row">
-					<span>Pag-IBIG:</span>
-					<span id="receiptPagibig">₱200.00</span>
-				</div>
-				<div class="receipt-row">
-					<span>Withholding Tax:</span>
-					<span id="receiptTax">₱900.00</span>
-				</div>
-				<div class="receipt-row total-row">
-					<span>Total Deductions:</span>
-					<span id="receiptTotalDeductions">₱2,000.00</span>
-				</div>
-			</div>
-			
-			<div class="receipt-section">
-				<div class="receipt-row total-row">
-					<span>Net Pay:</span>
-					<span id="receiptNetPay">₱13,000.00</span>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<!-- JavaScript -->
-<script>
-    // Time In/Out Functionality with Pagination
-    document.addEventListener('DOMContentLoaded', function() {
-        // Constants for pagination
-        const ROWS_PER_PAGE = 5;
-        let currentPage = 1;
-        let allRecords = [];
-        
-        // Get the buttons and table
-        const timeInBtn = document.getElementById('timeInBtn');
-        const timeOutBtn = document.querySelector('.Time-out');
-        const attendanceTable = document.querySelector('#attendanceMenu table tbody');
-        const paginationContainer = document.createElement('div');
-        paginationContainer.className = 'pagination';
-        document.querySelector('#attendanceMenu table').after(paginationContainer);
-        
-        // Create status message elements
-        const statusDiv = document.createElement('div');
-        statusDiv.innerHTML = `
-            <div class="status-message" id="timeInStatus" style="display: none;">
-                You timed in at <span id="timeInValue"></span>
+            <!-- Attendance Section -->
+            <div id="attendanceMenu" class="content-section" style="display: none;">
+                <div class="head-title">
+                    <div class="left">
+                        <h1>Attendance</h1>
+                    </div>
+                </div>
+                <div class="btns">
+                    <button id="timeInBtn" class="Time-in">Time-in</button>
+                    <button class="Time-out" id="timeOutBtn">Time-out</button>
+                </div>
+                <div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time - In</th>
+                                <th>Time - Out</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in attendance_records %}
+                            <tr>
+                                <td>{{ record.date|date:"M d, Y" }}</td>
+                                <td>{{ record.time_in|time:"h:i A"|lower }}</td>
+                                <td>{% if record.time_out %}{{ record.time_out|time:"h:i A"|lower }}{% else %}--{% endif %}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+								<td colspan="3">No attendance records yet.</td>
+							</tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="status-message" id="timeOutStatus" style="display: none;">
-                You timed out at <span id="timeOutValue"></span>
-            </div>
-        `;
-        document.querySelector('#attendanceMenu .btns').after(statusDiv);
-        
-        // Check if user is already timed in (from localStorage)
-        let isTimedIn = localStorage.getItem('isTimedIn') === 'true';
-        
-        // Initialize buttons based on current state
-        if (isTimedIn) {
-            timeInBtn.disabled = true;
-            timeOutBtn.disabled = false;
-            document.getElementById('timeInStatus').style.display = 'block';
-            document.getElementById('timeInValue').textContent = localStorage.getItem('timeInValue') || '';
-        }
-        
-        // Time In Button Click
-        timeInBtn.addEventListener('click', function() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            const dateString = now.toLocaleDateString();
-            
-            // Update UI
-            document.getElementById('timeInValue').textContent = timeString;
-            document.getElementById('timeInStatus').style.display = 'block';
-            document.getElementById('timeOutStatus').style.display = 'none';
-            
-            // Toggle buttons
-            timeInBtn.disabled = true;
-            timeOutBtn.disabled = false;
-            
-            // Save to localStorage
-            localStorage.setItem('isTimedIn', 'true');
-            localStorage.setItem('timeInValue', timeString);
-            localStorage.setItem('timeInDate', dateString);
-            
-            // Add to records and refresh table
-            const newRecord = { date: dateString, timeIn: timeString, timeOut: '--:-- --' };
-            allRecords.unshift(newRecord);
-            saveAttendanceRecord(dateString, timeString, '--:-- --');
-            displayPage(1);
-        });
-        
-        // Time Out Button Click
-        timeOutBtn.addEventListener('click', function() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            
-            // Update UI
-            document.getElementById('timeOutValue').textContent = timeString;
-            document.getElementById('timeOutStatus').style.display = 'block';
-            
-            // Toggle buttons
-            timeInBtn.disabled = false;
-            timeOutBtn.disabled = true;
-            
-            // Clear localStorage
-            localStorage.removeItem('isTimedIn');
-            localStorage.removeItem('timeInValue');
-            
-            // Update the most recent record
-            if (allRecords.length > 0 && allRecords[0].timeOut === '--:-- --') {
-                allRecords[0].timeOut = timeString;
-                updateAttendanceRecord(allRecords[0].date, allRecords[0].timeIn, timeString);
-                displayPage(currentPage);
-            }
-        });
-        
-        // Display a page of records
-        function displayPage(page) {
-            currentPage = page;
-            attendanceTable.innerHTML = '<tr><th>Date</th><th>Time - in</th><th>Time - out</th></tr>';
-            
-            const start = (page - 1) * ROWS_PER_PAGE;
-            const end = start + ROWS_PER_PAGE;
-            const paginatedItems = allRecords.slice(start, end);
-            
-            paginatedItems.forEach(record => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${record.date}</td>
-                    <td>${record.timeIn}</td>
-                    <td>${record.timeOut}</td>
-                `;
-                attendanceTable.appendChild(row);
-            });
-            
-            setupPagination();
-        }
-        
-        // Create pagination buttons
-        function setupPagination() {
-            paginationContainer.innerHTML = '';
-            const pageCount = Math.ceil(allRecords.length / ROWS_PER_PAGE);
-            
-            if (pageCount <= 1) return;
-            
-            // Previous button
-            const prevButton = document.createElement('button');
-            prevButton.innerText = 'Previous';
-            prevButton.disabled = currentPage === 1;
-            prevButton.addEventListener('click', () => {
-                if (currentPage > 1) displayPage(currentPage - 1);
-            });
-            paginationContainer.appendChild(prevButton);
-            
-            // Page buttons
-            for (let i = 1; i <= pageCount; i++) {
-                const pageButton = document.createElement('button');
-                pageButton.innerText = i;
-                pageButton.className = currentPage === i ? 'active' : '';
-                pageButton.addEventListener('click', () => displayPage(i));
-                paginationContainer.appendChild(pageButton);
-            }
-            
-            // Next button
-            const nextButton = document.createElement('button');
-            nextButton.innerText = 'Next';
-            nextButton.disabled = currentPage === pageCount;
-            nextButton.addEventListener('click', () => {
-                if (currentPage < pageCount) displayPage(currentPage + 1);
-            });
-            paginationContainer.appendChild(nextButton);
-        }
-        
-        // Load attendance records from localStorage
-        function loadAttendanceRecords() {
-            allRecords = JSON.parse(localStorage.getItem('attendanceRecords')) || [];
-            displayPage(1);
-        }
-        
-        // Save a new attendance record
-        function saveAttendanceRecord(date, timeIn, timeOut) {
-            const records = JSON.parse(localStorage.getItem('attendanceRecords')) || [];
-            records.unshift({ date, timeIn, timeOut });
-            localStorage.setItem('attendanceRecords', JSON.stringify(records));
-        }
-        
-        // Update an existing attendance record
-        function updateAttendanceRecord(date, timeIn, timeOut) {
-            let records = JSON.parse(localStorage.getItem('attendanceRecords')) || [];
-            const index = records.findIndex(r => r.date === date && r.timeIn === timeIn);
-            if (index !== -1) {
-                records[index].timeOut = timeOut;
-                localStorage.setItem('attendanceRecords', JSON.stringify(records));
-            }
-        }
-        
-        // Load records when page loads
-        loadAttendanceRecords();
+        </main>
+    </div>
 
-        // Receipt Modal Functionality
-        const modal = document.getElementById('receiptModal');
-        const closeModal = document.querySelector('.close-modal');
-        const viewButtons = document.querySelectorAll('.btn-view');
+    <!-- Receipt Modal -->
+    <div id="receiptModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="receipt-header">
+                <h2>Payroll Receipt</h2>
+                <p id="receiptPeriod">Pay Period: </p>
+            </div>
+            <div class="receipt-details">
+                <h3>Employee Details</h3>
+                <div class="receipt-row">
+                    <span>Employee Name:</span>
+                    <span>{{ employee.first_name }} {{ employee.last_name }}</span>
+                </div>
+                <div class="receipt-row">
+                    <span>Employee ID:</span>
+                    <span>EMP-{{ employee.id }}</span>
+                </div>
+                <div class="receipt-row">
+                    <span>Position:</span>
+                    <span>{{ employee.position.name }}</span>
+                </div>
+            </div>
+            
+            <div class="receipt-section">
+                <h3>Earnings</h3>
+                <div class="receipt-row">
+                    <span>Basic Salary:</span>
+                    <span id="receiptBasicPay">₱{{ employee.base_salary }}</span>
+                </div>
+                <div class="receipt-row">
+                    <span>Overtime Pay:</span>
+                    <span id="receiptOvertimePay">₱{{ employee.overtime_pay }}</span>
+                </div>
+                <div class="receipt-row">
+                    <span>Bonus Pay:</span>
+                    <span id="receiptHolidayPay">₱1000.00</span>
+                </div>
+                <div class="receipt-row total-row">
+                    <span>Base Salary:</span>
+                    <span id="receiptTotalEarnings">₱15000.00</span>
+                </div>
+            </div>
+            
+            <div class="receipt-section">
+                <h3>Deductions</h3>
+                <div class="receipt-row">
+                    <span>SSS:</span>
+                    <span id="receiptSSS">₱455.00</span>
+                </div>
+                <div class="receipt-row">
+                    <span>PAG-IBIG:</span>
+                    <span id="receiptPagibig">₱158.00</span>
+                </div>
+                <div class="receipt-row">
+                    <span>Philhealth:</span>
+                    <span id="receiptPagibig">₱1,650.00</span>
+                </div>
+                
+                <div class="receipt-row">
+                    <span>Withholding Tax:</span>
+                    <span id="receiptTax">₱2,263</span>
+                </div>
+                <div class="receipt-row total-row">
+                    <span>Total Deductions:</span>
+                    <span id="receiptTotalDeductions">₱2,263.00</span>
+                </div>
+            </div>
+            
+            <div class="receipt-section">
+                <div class="receipt-row total-row">
+                    <span>Net Pay:</span>
+                    <span id="receiptNetPay">₱ 13,737.00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Format time according to user's local time
+    function formatLocalTime(dateString, timeString) {
+        if (!timeString || timeString === '--') return '--';
         
-        // Receipt data (in a real application, this would come from the server)
-        const receiptData = {
-            'Apr-16-30-2025': {
-                period: 'April 16–30, 2025',
-                basicPay: '₱15,000.00',
-                overtimePay: '₱0.00',
-                holidayPay: '₱0.00',
-                totalEarnings: '₱15,000.00',
-                sss: '₱600.00',
-                philHealth: '₱300.00',
-                pagibig: '₱200.00',
-                tax: '₱900.00',
-                totalDeductions: '₱2,000.00',
-                netPay: '₱13,000.00'
-            },
-            'May-1-15-2025': {
-                period: 'May 1–15, 2025',
-                basicPay: '₱15,000.00',
-                overtimePay: '₱0.00',
-                holidayPay: '₱0.00',
-                totalEarnings: '₱15,000.00',
-                sss: '₱600.00',
-                philHealth: '₱300.00',
-                pagibig: '₱200.00',
-                tax: '₱700.00',
-                totalDeductions: '₱1,800.00',
-                netPay: '₱13,200.00'
-            }
+        // Parse the date from the server (assuming format like "Jan 01, 2023")
+        const dateParts = dateString.split(' ');
+        const monthMap = {
+            'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04', 'May': '05', 'Jun': '06',
+            'Jul': '07', 'Aug': '08', 'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
         };
         
-        // Open modal when View button is clicked
-        viewButtons.forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                const period = this.getAttribute('data-period');
-                const data = receiptData[period];
-                
-                // Populate receipt with data
-                document.getElementById('receiptPeriod').textContent = 'Pay Period: ' + data.period;
-                document.getElementById('receiptBasicPay').textContent = data.basicPay;
-                document.getElementById('receiptOvertimePay').textContent = data.overtimePay;
-                document.getElementById('receiptHolidayPay').textContent = data.holidayPay;
-                document.getElementById('receiptTotalEarnings').textContent = data.totalEarnings;
-                document.getElementById('receiptSSS').textContent = data.sss;
-                document.getElementById('receiptPhilHealth').textContent = data.philHealth;
-                document.getElementById('receiptPagibig').textContent = data.pagibig;
-                document.getElementById('receiptTax').textContent = data.tax;
-                document.getElementById('receiptTotalDeductions').textContent = data.totalDeductions;
-                document.getElementById('receiptNetPay').textContent = data.netPay;
-                
-                // Show modal
-                modal.style.display = 'block';
+        const formattedDate = `${dateParts[2]}-${monthMap[dateParts[0]]}-${dateParts[1].replace(',', '').padStart(2, '0')}`;
+        
+        // Parse the time from server (assuming format like "09:30 am")
+        const [time, period] = timeString.split(' ');
+        let [hours, minutes] = time.split(':');
+        hours = parseInt(hours);
+        
+        // Convert 12-hour to 24-hour format
+        if (period === 'pm' && hours < 12) hours += 12;
+        if (period === 'am' && hours === 12) hours = 0;
+        
+        // Create a date object in local timezone
+        const timeDate = new Date(`${formattedDate}T${hours.toString().padStart(2, '0')}:${minutes}:00`);
+        
+        // Format as local time
+        return timeDate.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        }).toLowerCase();
+    }
+
+    // Time In/Out Handlers
+    async function handleTimeAction(url, action) {
+        const btn = document.getElementById(`${action}Btn`);
+        btn.disabled = true;
+        
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Accept': 'application/json'
+                }
             });
-        });
-        
-        // Close modal when X is clicked
-        closeModal.addEventListener('click', function() {
-            modal.style.display = 'none';
-        });
-        
-        // Close modal when clicking outside the modal content
-        window.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                modal.style.display = 'none';
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.message || `${action} failed`);
             }
+            
+            // Format the time for display
+            if (action === 'timeIn') {
+                data.time_in = formatLocalTime(data.date, data.time_in);
+            } else {
+                data.time_out = formatLocalTime(data.date, data.time_out);
+            }
+            
+            // Update table with complete data
+            updateAttendanceTable({
+                date: data.date,
+                time_in: action === 'timeIn' ? data.time_in : undefined,
+                time_out: action === 'timeOut' ? data.time_out : undefined
+            });
+            
+            showStatusMessage(data.message || `${action} successful`, 'success');
+            
+        } catch (error) {
+            console.error(`${action} error:`, error);
+            showStatusMessage(error.message, 'error');
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    // Improved table updater
+    function updateAttendanceTable(data) {
+        const table = document.querySelector('#attendanceMenu table tbody');
+        const today = data.date || new Date().toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: '2-digit', 
+            year: 'numeric' 
         });
+
+		// Remove the "No records" row if it exists
+    	if (table.rows.length === 1 && table.rows[0].cells[0].hasAttribute('colspan')) {
+        	table.deleteRow(0);
+    	}
+        
+        // Find or create today's row
+        let row = Array.from(table.rows).find(r => r.cells[0].textContent === today);
+        if (!row) {
+            row = table.insertRow(0);
+            row.innerHTML = `
+                <td>${today}</td>
+                <td>--</td>
+                <td>--</td>
+            `;
+        }
+        
+        // Update only the relevant cells
+        if (data.time_in) row.cells[1].textContent = data.time_in;
+        if (data.time_out) row.cells[2].textContent = data.time_out;
+        
+        // Update button states
+        const hasTimeIn = row.cells[1].textContent !== '--';
+        const hasTimeOut = row.cells[2].textContent !== '--';
+        
+        document.getElementById('timeInBtn').disabled = hasTimeIn;
+        document.getElementById('timeOutBtn').disabled = !hasTimeIn || hasTimeOut;
+    }
+
+    // Show status messages
+    function showStatusMessage(message, type) {
+    const table = document.querySelector('#attendanceMenu table tbody');
+    // Check if the first row has a colspan attribute (indicating "No records" row)
+    const isEmpty = table.rows.length === 0 || table.rows[0].cells[0].hasAttribute('colspan');
+    
+    // Only show message if table is empty
+    if (isEmpty) {
+        const div = document.createElement('div');
+        div.className = `status-message ${type}`;
+        div.textContent = message;
+        
+        // Insert after buttons
+        const buttonsDiv = document.querySelector('#attendanceMenu .btns');
+        if (buttonsDiv) {
+            // Remove any existing status messages first
+            const existingMessages = buttonsDiv.nextElementSibling;
+            if (existingMessages && existingMessages.classList.contains('status-message')) {
+                existingMessages.remove();
+            }
+            buttonsDiv.insertAdjacentElement('afterend', div);
+        }
+        
+        setTimeout(() => div.remove(), 5000);
+    }
+}
+
+    // Get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Initialize button states on page load
+    function initializeButtonStates() {
+        const table = document.querySelector('#attendanceMenu table tbody');
+        if (!table) return;
+        
+        const today = new Date().toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: '2-digit', 
+            year: 'numeric' 
+        });
+        
+        const todayRow = Array.from(table.rows).find(row => 
+            row.cells[0].textContent === today
+        );
+        
+        if (todayRow) {
+            const hasTimeIn = todayRow.cells[1].textContent !== '--';
+            const hasTimeOut = todayRow.cells[2].textContent !== '--';
+            
+            document.getElementById('timeInBtn').disabled = hasTimeIn;
+            document.getElementById('timeOutBtn').disabled = !hasTimeIn || hasTimeOut;
+        }
+    }
+
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeButtonStates();
+        
+        document.getElementById('timeInBtn').addEventListener('click', () => 
+            handleTimeAction('{% url "time_in" %}', 'timeIn'));
+        
+        document.getElementById('timeOutBtn').addEventListener('click', () => 
+            handleTimeAction('{% url "time_out" %}', 'timeOut'));
     });
 
     // Sidebar toggle
@@ -620,6 +560,76 @@
             document.getElementById(targetId).style.display = "block";
         });
     });
-</script>
+
+    // Wait for the DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Get the modal element
+    const modal = document.getElementById('receiptModal');
+    
+    // Get the close button
+    const closeBtn = modal.querySelector('.close-modal');
+    
+    // Get all view buttons
+    const viewButtons = document.querySelectorAll('.btn-view');
+    
+    // Sample data for demonstration (replace with your actual data source)
+    const payrollData = {
+        'Apr-16-30-2025': {
+            period: 'April 16–30, 2025',
+            basicPay: '₱15,000',
+            overtimePay: '₱0',
+            bonusPay: '₱1,000',
+            totalEarnings: '₱15,000',
+            sss: '₱ 455',
+            pagibig: '₱158',
+            withholdingTax: '₱ 2,263',
+            totalDeductions: '₱ 2,263',
+            netPay: '₱13,737'
+        },
+    };
+    
+    // Add click event listener to all view buttons
+    viewButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Get the pay period from data attribute
+            const period = this.getAttribute('data-period');
+            
+            // Get the payroll data for this period
+            const data = payrollData[period];
+            
+            if (data) {
+                // Update the modal with the payroll data
+                document.getElementById('receiptPeriod').textContent = 'Pay Period: ' + data.period;
+                document.getElementById('receiptBasicPay').textContent = data.basicPay;
+                document.getElementById('receiptOvertimePay').textContent = data.overtimePay;
+                document.getElementById('receiptHolidayPay').textContent = data.holidayPay;
+                document.getElementById('receiptTotalEarnings').textContent = data.totalEarnings;
+                document.getElementById('receiptSSS').textContent = data.sss;
+                document.getElementById('receiptPagibig').textContent = data.pagibig;
+                document.getElementById('receiptTax').textContent = data.tax;
+                document.getElementById('receiptTotalDeductions').textContent = data.totalDeductions;
+                document.getElementById('receiptNetPay').textContent = data.netPay;
+                
+                // Display the modal
+                modal.style.display = 'block';
+            }
+        });
+    });
+    
+    // Close the modal when clicking on the close button
+    closeBtn.addEventListener('click', function() {
+        modal.style.display = 'none';
+    });
+    
+    // Close the modal when clicking outside of it
+    window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+});
+    </script>
 </body>
 </html>

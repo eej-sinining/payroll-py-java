@@ -85,10 +85,12 @@ class Payroll(models.Model):
     cutoff_start = models.DateField()
     cutoff_end = models.DateField()
     total_hours_worked = models.DecimalField(max_digits=5, decimal_places=2)
-    gross_pay = models.DecimalField(max_digits=10, decimal_places=2)
+    base_pay = models.DecimalField(max_digits=10, decimal_places=2)
     deductions = models.DecimalField(max_digits=10, decimal_places=2)
     net_pay = models.DecimalField(max_digits=10, decimal_places=2)
     payment_date = models.DateField()
+    overtime_pay = models.DecimalField(max_digits=10, decimal_places=2) 
+    bonus_pay = models.DecimalField(max_digits=10, decimal_places=2)
 
 class Adjustment(models.Model):
     ADJUSTMENT_CHOICES = [
@@ -177,4 +179,5 @@ class Attendance(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.date}"
 
-    
+    class Meta:
+        unique_together = ('user', 'date')

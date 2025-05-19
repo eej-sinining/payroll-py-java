@@ -1,3 +1,10 @@
+
+from collections import defaultdict
+from venv import logger
+from django.utils import timezone
+from django.http import JsonResponse
+import json
+from django.views.decorators.csrf import csrf_exempt
 from encodings.punycode import T
 import re
 import json
@@ -10,13 +17,18 @@ from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.db import IntegrityError
-from .models import Deduction, Employee, CustomUser, Position
+from .models import Deduction, Employee, CustomUser, Payroll, Position, Attendance
 from .forms import LoginForm, EmployeeForm
 
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from typing import Dict, Any
 from django.db import transaction
+from datetime import datetime, time as datetime_time
+from django.utils import timezone
+from datetime import datetime
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
 
 User = get_user_model()
 
@@ -385,22 +397,236 @@ def run_service_java(request):
     
 def logout(request):
     return render(request, 'payroll_app/home.html')
+
 def home_page(request):
     return render(request, 'payroll_app/home.html')
-def employee_dashboard(request):
-    # Get the employee record associated with the current user
-    try:
-        employee = request.user.employeeID
 
-    except AttributeError:
-        employee = None
-    
-    return render(request, 'payroll_app/employee.html', {
-        'employee': employee
-
-    })
 def admin_dashboard(request):
     positions = Position.objects.all().order_by('name')
     return render(request, 'payroll_app/admin.html', {'positions': positions})
 
     return render(request, 'admin.html', {'employees': employees})
+
+
+@login_required
+def employee_dashboard(request):
+    try:
+        employee = Employee.objects.get(id=request.user.employeeID.id)
+    except:
+        employee = None
+    
+    # Get attendance records for the current user
+    attendance_records = Attendance.objects.filter(user=request.user).order_by('-date', '-time_in')
+    
+    # Get payroll records for the employee - only select fields that exist
+    payroll_records = Payroll.objects.filter(employee=employee).only(
+        'id', 'cutoff_start', 'cutoff_end', 'base_pay', 'deductions', 'net_pay'
+    ).order_by('-cutoff_end') if employee else []
+    
+    context = {
+        'employee': employee,
+        'attendance_records': attendance_records,
+        'payroll_records': payroll_records,
+    }
+    return render(request, 'payroll_app/employee.html', context)
+
+
+
+
+@login_required
+def time_in(request):
+    if request.method == 'POST':
+        try:
+            # Use Django's built-in timezone handling
+            from django.utils import timezone
+            
+            # Activate Philippine timezone for this request
+            timezone.activate('Asia/Manila')
+            
+            # Get current time (will now use the activated timezone)
+            now = timezone.localtime(timezone.now())
+            today = now.date()
+            current_time = now.time()
+            
+            # Get or create attendance record
+            attendance, created = Attendance.objects.get_or_create(
+                user=request.user,
+                date=today,
+                defaults={'time_in': current_time}
+            )
+            
+            if not created:
+                if attendance.time_in:
+                    return JsonResponse({
+                        'status': 'error', 
+                        'message': 'You have already timed in today'
+                    }, status=400)
+                
+                attendance.time_in = current_time
+                attendance.save()
+            
+            # Safe time formatting
+            def safe_format(time_obj):
+                try:
+                    return time_obj.strftime("%I:%M %p").lower()
+                except (AttributeError, TypeError):
+                    return "--"
+            
+            return JsonResponse({
+                'status': 'success',
+                'time_in': safe_format(current_time),
+                'date': today.strftime("%b %d, %Y"),
+                'message': 'Time-in recorded successfully'
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=500)
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+
+@login_required
+def time_out(request):
+    if request.method == 'POST':
+        try:
+            # Use Django's built-in timezone handling
+            from django.utils import timezone
+            
+            # Activate Philippine timezone for this request
+            timezone.activate('Asia/Manila')
+            
+            # Get current time (will now use the activated timezone)
+            now = timezone.localtime(timezone.now())
+            today = now.date()
+            current_time = now.time()
+            
+            # Find existing attendance record
+            attendance = Attendance.objects.filter(
+                user=request.user,
+                date=today,
+                time_in__isnull=False,
+                time_out__isnull=True
+            ).first()
+            
+            if not attendance:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'No active time-in found'
+                }, status=400)
+
+            # Validate and save
+            attendance.time_out = current_time
+            attendance.full_clean()
+            attendance.save()
+            
+            # Safe time formatting
+            def safe_format(time_obj):
+                try:
+                    return time_obj.strftime("%I:%M %p").lower()
+                except (AttributeError, TypeError):
+                    return "--"
+            
+            return JsonResponse({
+                'status': 'success',
+                'time_out': safe_format(current_time),
+                'time_in': safe_format(attendance.time_in),
+                'date': today.strftime("%b %d, %Y"),
+                'message': 'Time-out recorded successfully'
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': f'Error: {str(e)}'
+            }, status=500)
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+
+@login_required
+def get_payroll_details(request, payroll_id):
+    if not hasattr(request.user, 'employeeID'):
+        return JsonResponse(
+            {'status': 'error', 'message': 'User is not an employee'},
+            status=403
+        )
+    
+    try:
+        # Get payroll and verify it belongs to the requesting user
+        payroll = Payroll.objects.select_related('employee').get(
+            id=payroll_id,
+            employee=request.user.employeeID
+        )
+        
+        # Get all deductions for this payroll in a single query
+        deductions = Deduction.objects.filter(payroll=payroll).only(
+            'deduction_type', 'amount'
+        )
+        
+        # Initialize deduction amounts with defaultdict for safety
+        deduction_amounts = defaultdict(float, {
+            'sss': 0,
+            'philhealth': 0,
+            'pagibig': 0,
+            'tax': 0
+        })
+        
+        # Calculate each deduction type with proper type conversion
+        for deduction in deductions:
+            amount = float(deduction.amount)
+            if deduction.deduction_type == 'SSS':
+                deduction_amounts['sss'] = amount
+            elif deduction.deduction_type == 'PhilHealth':
+                deduction_amounts['philhealth'] = amount
+            elif deduction.deduction_type == 'Pag-IBIG':
+                deduction_amounts['pagibig'] = amount
+            elif deduction.deduction_type == 'Tax':
+                deduction_amounts['tax'] = amount
+        
+        # Calculate total deductions (sum of all specific deductions)
+        calculated_total_deductions = sum(deduction_amounts.values())
+        
+        # Verify consistency with payroll.deductions
+        if abs(float(payroll.deductions) - calculated_total_deductions > 0.01):
+            logger.warning(
+                f"Deduction mismatch for payroll {payroll_id}: "
+                f"stored={payroll.deductions}, calculated={calculated_total_deductions}"
+            )
+        
+        response_data = {
+            'status': 'success',
+            'pay_period': {
+                'start': payroll.cutoff_start.strftime("%b %d, %Y"),
+                'end': payroll.cutoff_end.strftime("%b %d, %Y"),
+            },
+            'earnings': {
+                'base_pay': float(payroll.base_pay),
+                'overtime_pay': float(payroll.overtime_pay),
+                'bonus_pay': float(payroll.bonus_pay),
+                'total': float(payroll.base_pay) + float(payroll.overtime_pay) + float(payroll.bonus_pay)
+            },
+            'deductions': {
+                'sss': deduction_amounts['sss'],
+                'philhealth': deduction_amounts['philhealth'],
+                'pagibig': deduction_amounts['pagibig'],
+                'tax': deduction_amounts['tax'],
+                'total': calculated_total_deductions
+            },
+            'net_pay': float(payroll.net_pay),
+            'payment_date': payroll.payment_date.strftime("%b %d, %Y") if payroll.payment_date else None,
+        }
+        
+        return JsonResponse(response_data)
+        
+    except Payroll.DoesNotExist:
+        return JsonResponse(
+            {'status': 'error', 'message': 'Payroll record not found or access denied'},
+            status=404
+        )
+    except Exception as e:
+        logger.error(f"Error fetching payroll details: {str(e)}", exc_info=True)
+        return JsonResponse(
+            {'status': 'error', 'message': 'An internal error occurred'},
+            status=500
+        )
