@@ -8,11 +8,17 @@ from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
 from django.db import IntegrityError
-from .models import Employee, CustomUser, Position
+from django.utils import timezone
+from django.db.models import Sum
+from datetime import time
+from datetime import date
+from .models import Employee, CustomUser, Position, Attendance, Payroll
 from .forms import LoginForm, EmployeeForm
 
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
+
+from django.conf import settings
 
 def homepage(request):
     """Render the home page with login form"""
@@ -40,14 +46,73 @@ def login_view(request):
     return redirect('payroll_app:homepage')
 
 def employee_records(request):
+    today = timezone.now().date()
     employees = Employee.objects.all().order_by('id')
     positions = Position.objects.filter(is_active=True).order_by('id')  # Get active positions
+    attendance_records = Attendance.objects.select_related('employee').all().order_by('id') 
+
+    present_count = Attendance.objects.filter(status='present').count()
+    absent_count = Attendance.objects.filter(status='absent').count()
+    late_count = Attendance.objects.filter(status='late').count()
+
+    pending_payrolls = Payroll.objects.filter(status__isnull=True).select_related('employee')
+    done_payrolls = Payroll.objects.filter(status='done').select_related('employee')
+
+    pending_count = pending_payrolls.count()
+    total_payroll = Payroll.objects.aggregate(total=Sum('overall_pay'))['total'] or 0
+    total_deductions = Payroll.objects.aggregate(total=Sum('deductions'))['total'] or 0
+
     form = EmployeeForm()
+
     return render(request, 'payroll_app/Admin.html', {
         'employees': employees,
         'employee_form': form,
         'positions': positions,  # Add positions to the context
+        'attendance_records': attendance_records,
+
+        'present_count': present_count,
+        'absent_count': absent_count,
+        'late_count': late_count,
+
+        'pending_payrolls': pending_payrolls,
+        'done_payrolls': done_payrolls,
+
+        'pending_count': pending_count,
+        'total_payroll': total_payroll,
+        'total_deductions': total_deductions,
     })
+
+def attendance_summary(request):
+    today = timezone.now().date()
+    
+    # Get all active employees
+    all_employees = Employee.objects.filter(is_active=True)
+    total_employees = all_employees.count()
+    
+    # Get today's attendance records
+    today_attendance = Attendance.objects.filter(date=today)
+    
+    # Calculate counts
+    present_count = today_attendance.filter(
+        time_in__isnull=False,
+        time_out__isnull=False,
+        time_in__hour__lt=9  # Before 9 AM
+    ).count()
+    
+    late_count = today_attendance.filter(
+        time_in__hour__gte=9  # 9 AM or later
+    ).count()
+    
+    # Absent = Total employees - (Present + Late)
+    absent_count = total_employees - (present_count + late_count)
+    
+    context = {
+        'present_count': present_count,
+        'late_count': late_count,
+        'absent_count': absent_count,
+    }
+    
+    return render(request, 'payroll_app/Admin.html', context)
 
 def get_employee_data(request, employee_id):
     try:
@@ -199,6 +264,150 @@ def create_employee(request):
             return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
+def generate_attendance_report(request):
+    # Validate Java environment first
+    java_folder = os.path.join(os.path.dirname(__file__),  'calculation')
+    java_file = os.path.join(java_folder, 'service.java')
+    
+    if not os.path.exists(java_file):
+        return JsonResponse({
+            'success': False,
+            'error': 'Java service not configured. Missing service.java file.'
+        }, status=500)
+
+    try:
+        # Verify Java is installed
+        subprocess.run(['java', '-version'], 
+                      check=True,
+                      stdout=subprocess.PIPE,
+                      stderr=subprocess.PIPE,
+                      timeout=5)
+    except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
+        return JsonResponse({
+            'success': False,
+            'error': 'Java runtime not found or not working'
+        }, status=500)
+
+    try:
+        # Compile Java service once at the beginning
+        compile_result = subprocess.run(
+            ['javac', 'service.java'],
+            cwd=java_folder,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=10
+        )
+        if compile_result.returncode != 0:
+            return JsonResponse({
+                'success': False,
+                'error': f'Java compilation failed: {compile_result.stderr}'
+            }, status=500)
+
+        processed_employees = 0
+        errors = []
+        
+        # Get all active employees with position info
+        employees = Employee.objects.filter(is_active=True).select_related('position')
+        total_employees = employees.count()
+
+        for employee in employees:
+            try:
+                # Get attendance records for current month only (adjust as needed)
+                attendances = Attendance.objects.filter(employee=employee)
+                
+                if not attendances.exists():
+                    errors.append(f"No attendance records for employee {employee.id}")
+                    continue
+
+                # Prepare attendance data string for Java
+                attendance_data = []
+                for attendance in attendances:
+                    time_in = attendance.time_in.strftime("%H:%M") if attendance.time_in else ""
+                    time_out = attendance.time_out.strftime("%H:%M") if attendance.time_out else ""
+                    attendance_data.append(f"{attendance.date},{time_in},{time_out}")
+                
+                attendance_str = ";".join(attendance_data)
+                
+                # Prepare Java arguments with proper validation
+                args = [
+                    str(employee.id),
+                    str(employee.hourly_rate),
+                    str(employee.position.bonus if employee.position else 0),
+                    str(employee.position.deduction if employee.position else 0),
+                    attendance_str
+                ]
+
+                # Run Java service with timeout
+                run_result = subprocess.run(
+                    ['java', 'service'] + args,
+                    cwd=java_folder,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    timeout=15
+                )
+
+                if run_result.returncode != 0:
+                    errors.append(f"Java error for employee {employee.id}: {run_result.stderr}")
+                    continue
+
+                # Parse and validate Java output
+                try:
+                    result = {}
+                    output = run_result.stdout.strip()
+                    if not output:
+                        raise ValueError("Empty response from Java service")
+
+                    for part in output.split(','):
+                        if ':' not in part:
+                            continue
+                        key, value = part.split(':', 1)
+                        result[key.strip()] = value.strip()
+
+                    required_fields = ['employeeId', 'totalHours', 'overallPay', 'deductions']
+                    if not all(field in result for field in required_fields):
+                        raise ValueError("Missing required fields in Java output")
+
+                    # Create payroll record
+                    Payroll.objects.create(
+                        employee=employee,
+                        total_hours_worked=float(result['totalHours']),
+                        overall_pay=float(result['overallPay']),
+                        deductions=float(result['deductions']),
+                        payment_date=date.today()
+                    )
+                    processed_employees += 1
+
+                except (ValueError, KeyError) as e:
+                    errors.append(f"Data processing error for employee {employee.id}: {str(e)}")
+
+            except Exception as e:
+                errors.append(f"Error processing employee {employee.id}: {str(e)}")
+
+        # Prepare response
+        response = {
+            'success': True,
+            'message': f'Successfully processed {processed_employees} of {total_employees} employees',
+            'processed': processed_employees,
+            'total': total_employees,
+        }
+
+        if errors:
+            response['warning'] = f'{len(errors)} errors occurred during processing'
+            if len(errors) <= 5:  # Don't flood the response with too many errors
+                response['errors'] = errors
+            else:
+                response['error_count'] = len(errors)
+                response['sample_errors'] = errors[:3]
+
+        return JsonResponse(response)
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'System error: {str(e)}'
+        }, status=500)
 
 def add_salary_structure(request):
     if request.method == 'POST':
@@ -290,7 +499,17 @@ def delete_salary_structure(request, position_id):
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
 
+def process_payroll(request):
+    payroll_ids = request.POST.getlist('payroll_ids')
+    
+    try:
+        # Update status of selected payrolls to 'done'
+        Payroll.objects.filter(id__in=payroll_ids).update(status='done')
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
+        
 def run_service_java(request):
     """Execute Java service with proper security checks"""
     if not request.user.is_authenticated:

@@ -100,9 +100,43 @@ $(".navbar-toggler").click(function () {
 });
 
 // Handle attendance report generation
-$("#generateAttendanceReport").click(function() {
-    var selectedDate = $("#attendanceDate").val();
-    alert("Attendance ni Aybol: " + selectedDate);
+document.getElementById('generateAttendanceReport').addEventListener('click', function() {
+    if (confirm('Generate payroll report for all employees?')) {
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
+        
+        fetch('/generate-payroll-report/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                let message = `Processed ${data.processed} of ${data.total} employees`;
+                if (data.warning) {
+                    message += ` (${data.warning})`;
+                    if (data.errors) {
+                        message += '\n\n' + data.errors.join('\n');
+                    }
+                }
+                alert(message);
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to generate report');
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = 'Generate Report';
+        });
+    }
 });
 
 // Handle generate employee button click
@@ -274,6 +308,7 @@ $(document).on('click', '.delete-employee', function() {
         });
     }
 });
+
 
 // Handle salary structure button to show modal
 $("#addSalaryStructure").click(function() {
@@ -457,6 +492,43 @@ $("#salarySortForm").submit(function(e) {
 });
 
 // Handle process payroll button
-$("#processPayroll").click(function() {
-    alert("Payroll ni Aybol");
+document.addEventListener('DOMContentLoaded', function() {
+  const processPayrollForm = document.getElementById('processPayrollForm');
+  
+  processPayrollForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Get all checked payroll IDs
+    const checkboxes = document.querySelectorAll('.payroll-checkbox:checked');
+    const payrollIds = Array.from(checkboxes).map(cb => cb.value);
+    
+    if (payrollIds.length === 0) {
+      alert('Please select at least one payroll to process');
+      return;
+    }
+    
+    // Add the payroll IDs to the form data
+    const formData = new FormData(processPayrollForm);
+    payrollIds.forEach(id => formData.append('payroll_ids', id));
+    
+    // Submit the form
+    fetch(processPayrollForm.action, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+      }
+    })
+    .then(response => {
+      if (response.ok) {
+        window.location.reload(); // Refresh the page to see changes
+      } else {
+        alert('Error processing payroll');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Error processing payroll');
+    });
+  });
 });

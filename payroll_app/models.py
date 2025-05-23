@@ -37,24 +37,32 @@ class Employee(models.Model):
     def position_name(self):
         return self.position.name if self.position else "No Position"
 
+class Attendance(models.Model):
+    employee = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True)
+    date = models.DateField(auto_now_add=True)
+    time_in = models.TimeField(null=True, blank=True)
+    time_out = models.TimeField(null=True, blank=True)
+    status = models.CharField(max_length=20, null=True, blank=True)
+
+    
+
 class Payroll(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
-    cutoff_start = models.DateField()
-    cutoff_end = models.DateField()
     total_hours_worked = models.DecimalField(max_digits=5, decimal_places=2)
-    gross_pay = models.DecimalField(max_digits=10, decimal_places=2)
+    overall_pay = models.DecimalField(max_digits=10, decimal_places=2)
     deductions = models.DecimalField(max_digits=10, decimal_places=2)
-    net_pay = models.DecimalField(max_digits=10, decimal_places=2)
     payment_date = models.DateField()
+    status = models.CharField(max_length=20, null=True, blank=True)
 
 class Adjustment(models.Model):
     ADJUSTMENT_CHOICES = [
         ('Overtime', 'Overtime'),
         ('Absence', 'Absence'),
     ]
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    userID = models.AutoField(primary_key=True)
     adjustment_type = models.CharField(max_length=10, choices=ADJUSTMENT_CHOICES)
     hours = models.DecimalField(max_digits=5, decimal_places=2)
+    role = models.CharField(max_length=50)
     cutoff_start = models.DateField()
     cutoff_end = models.DateField()
 

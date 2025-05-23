@@ -30,10 +30,14 @@ urlpatterns = [
     path('get_employee_data/<int:employee_id>/', views.get_employee_data, name='get_employee_data'),
     path('update_employee/<int:employee_id>/', views.update_employee, name='update_employee'),
     path('delete_employee/<int:employee_id>/', views.delete_employee, name='delete_employee'),
+    path('attendance-summary/', views.attendance_summary, name='attendance_summary'),
+    path('generate-payroll-report/', views.generate_attendance_report, name='generate_payroll_report'),
+    path('run-service/', views.run_service_java, name='run_service'),
     path('add_salary_structure/', views.add_salary_structure, name='add_salary_structure'),
     path('get_position_data/<int:position_id>/', views.get_position_data, name='get_position_data'),
     path('update_salary_structure/<int:position_id>/', views.update_salary_structure, name='update_salary_structure'),
     path('delete_salary_structure/<int:position_id>/', views.delete_salary_structure, name='delete_salary_structure'),
+    path('process-payroll/', views.process_payroll, name='process_payroll'),
     
 ] 
 

@@ -11,8 +11,8 @@
 </head>
 
 
-
 <body>
+  <!-- NavBar -->
     <nav class="navbar navbar-expand-custom navbar-mainbg">
     <div class="d-flex align-items-center">
         <a class="navbar-brand navbar-logo" href="#">Welcome Admin!</a>
@@ -320,69 +320,88 @@
           </div>
           
           <div class="card mb-4">
-             <div class="card-header bg-light">
-             <h5 class="mb-0 text-center">Today's Summary</h5>
-           </div>
-               <div class="card-body">
-                    <div class="row justify-content-center">
-                    <div class="col-auto col-sm-3 mb-3">  <!-- Changed to col-auto -->
-                    <div class="card bg-success text-white h-100" style="min-width: 150px;">
+    <div class="card-header bg-light">
+        <h5 class="mb-0 text-center">Today's Summary</h5>
+    </div>
+    <div class="card-body">
+        <div class="row justify-content-center">
+            <div class="col-auto col-sm-3 mb-3">
+                <div class="card bg-success text-white h-100" style="min-width: 150px;">
                     <div class="card-body text-center">
                         <h2 class="fs-3 fs-md-2">{{ present_count }}</h2>
                         <p class="mb-0">Present</p>
                     </div>
-                    </div>
-                    </div>
-                    <div class="col-auto col-sm-3 mb-3">  <!-- Changed to col-auto -->
-                        <div class="card bg-danger text-white h-100" style="min-width: 150px;">
-                        <div class="card-body text-center">
+                </div>
+            </div>
+            <div class="col-auto col-sm-3 mb-3">
+                <div class="card bg-danger text-white h-100" style="min-width: 150px;">
+                    <div class="card-body text-center">
                         <h2 class="fs-3 fs-md-2">{{ absent_count }}</h2>
                         <p class="mb-0">Absent</p>
-                        </div>
-                        </div>
                     </div>
-                    <div class="col-auto col-sm-3 mb-3">  <!-- Changed to col-auto -->
-                    <div class="card bg-warning text-white h-100" style="min-width: 150px;">
-                        <div class="card-body text-center">
+                </div>
+            </div>
+            <div class="col-auto col-sm-3 mb-3">
+                <div class="card bg-warning text-white h-100" style="min-width: 150px;">
+                    <div class="card-body text-center">
                         <h2 class="fs-3 fs-md-2">{{ late_count }}</h2>
                         <p class="mb-0">Late</p>
-                        </div>
-                       </div>
                     </div>
-                 </div>
-             </div>
-         </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
           
           <div class="table-responsive">
-              <table class="table table-striped">
-                  <thead>
-                      <tr>
-                          <th>ID</th>
-                          <th>Name</th>
-                          <th>Position</th>
-                          <th>Clock In</th>
-                          <th>Clock Out</th>
-                          <th>Status</th>
-                          <th>Actions</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      {% for employee in employees %}
-                      <tr>
-                          <td>E{{ employee.id|stringformat:"03d" }}</td>
-                          <td>{{ employee.first_name }} {{ employee.last_name }}</td>
-                          <td>{{ employee.position.name }}</td>
-                          <td>--</td>
-                          <td>--</td>
-                          <td><span class="badge badge-secondary">Pending</span></td>
-                          <td>
-                              <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
-                          </td>
-                      </tr>
-                      {% endfor %}
-                  </tbody>
-              </table>
-          </div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Position</th>
+                <th>Date</th>
+                <th>Clock In</th>
+                <th>Clock Out</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in attendance_records %}
+            <tr>
+                <td>{{ record.id }}</td>
+                <td>{{ record.employee.first_name }} {{ record.employee.last_name }}</td>
+                <td>{{ record.employee.position_name }}</td>
+                <td>{{ record.date|date:"Y-m-d" }}</td>
+                <td>{{ record.time_in|time:"H:i"|default:"-" }}</td>
+                <td>{{ record.time_out|time:"H:i"|default:"-" }}</td>
+                <td>
+                    {% if record.time_in and record.time_out %}
+                    {% if record.time_in.hour >= 9 %}  {# Check if hour is 9 or later #}
+                  <span class="badge bg-warning">Late</span>
+                    {% else %}
+                  <span class="badge bg-success">Present</span>
+                    {% endif %}
+                    {% elif record.time_in %}
+                    {% if record.time_in.hour >= 9 %}
+                  <span class="badge bg-warning">Late</span>
+                    {% else %}
+                  <span class="badge bg-info">Clocked In</span>
+                    {% endif %}
+                    {% else %}
+                  <span class="badge bg-danger">Absent</span>
+                    {% endif %}
+                 </td>
+                
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="text-center">No attendance records found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        </table>
+</div>
       </div>
   </div>
 </div>
@@ -520,167 +539,122 @@
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h3>Payroll Management</h3>
         <div>
-          <select class="form-control d-inline-block mr-2" style="width: auto;">
-            <option>May 2025</option>
-            <option>April 2025</option>
-            <option>March 2025</option>
-            <option>February 2025</option>
-          </select>
-          <button class="btn btn-danger" id="processPayroll">Process Payroll</button>
+          <form id="processPayrollForm" method="post" action="{% url 'process_payroll' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger" id="processPayroll">Process Payroll</button>
+          </form>
         </div>
       </div>
       
       <div class="card mb-4">
-        <div class="card-header bg-light">
-          <h5 class="mb-0">Payroll Summary - May 2025</h5>
-        </div>
-        <div class="card-body">
-          <div class="row text-center">
-            <div class="col-md-3 mb-3">
-              <div class="card bg-primary text-white">
-                <div class="card-body">
-                  <h2>$86,750</h2>
-                  <p class="mb-0">Total Payroll</p>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-3 mb-3">
-              <div class="card bg-success text-white">
-                <div class="card-body">
-                  <h2>52</h2>
-                  <p class="mb-0">Employees</p>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-3 mb-3">
-              <div class="card bg-info text-white">
-                <div class="card-body">
-                  <h2>$12,500</h2>
-                  <p class="mb-0">Bonuses</p>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-3 mb-3">
-              <div class="card bg-warning text-white">
-                <div class="card-body">
-                  <h2>$15,200</h2>
-                  <p class="mb-0">Deductions</p>
-                </div>
-              </div>
-            </div>
+  <div class="card-header bg-light">
+    <h5 class="mb-0">Payroll Summary</h5>
+  </div>
+  <div class="card-body">
+    <div class="row justify-content-center">
+      <div class="col-md-3 mb-3">
+        <div class="card bg-primary text-white">
+          <div class="card-body text-center">
+            <h2>{{ pending_count }}</h2>
+            <p class="mb-0">Pending</p>
           </div>
         </div>
       </div>
-      
-      <ul class="nav nav-tabs mb-3" id="payrollTabs" role="tablist">
-        <li class="nav-item">
-          <a class="nav-link active" id="pending-tab" data-toggle="tab" href="#pending" role="tab">Pending</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" id="processed-tab" data-toggle="tab" href="#processed" role="tab">Processed</a>
-        </li>
-      </ul>
-      
-      <div class="tab-content" id="payrollTabContent">
-        <div class="tab-pane fade show active" id="pending" role="tabpanel">
-          <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Name</th>
-                  <th>Salary</th>
-                  <th>Deductions</th>
-                  <th>Bonus</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>E001</td>
-                  <td>John Wick</td>
-                  <td>--</td>
-                  <td>--</td>
-                  <td>--</td>                 
-                  <td>
-                    <div class="form-check">
-                      <input class="form-check-input" type="checkbox" checked>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>E002</td>
-                  <td>Jane Smith</td>
-                  <td>--</td>
-                  <td>--</td>
-                  <td>--</td>
-                  <td>
-                    <div class="form-check">
-                      <input class="form-check-input" type="checkbox" checked>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>E003</td>
-                  <td>Michael Johnson</td>
-                  <td>--</td>
-                  <td>--</td>
-                  <td>--</td>
-                  <td>
-                    <div class="form-check">
-                      <input class="form-check-input" type="checkbox" checked>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+      <div class="col-md-3 mb-3">
+        <div class="card bg-info text-white">
+          <div class="card-body text-center">
+            <h2>₱{{ total_payroll|floatformat:2 }}</h2>
+            <p class="mb-0">Total Payroll</p>
           </div>
         </div>
-                
-        <div class="tab-pane fade" id="processed" role="tabpanel">
-          <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Name</th>
-                  <th>Payment Date</th>
-                  <th>Payment Method</th>
-                  <th>Net Salary</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>E004</td>
-                  <td>Sarah Williams</td>
-                  <td>05/01/2025</td>
-                  <td>Bank Transfer</td>
-                  <td>$5,750</td>
-                  <td><span class="badge badge-success">Paid</span></td>
-                  <td>
-                    <button class="btn btn-sm btn-info"><i class="fas fa-file-invoice"></i></button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>E005</td>
-                  <td>Robert Brown</td>
-                  <td>05/01/2025</td>
-                  <td>Bank Transfer</td>
-                  <td>$4,200</td>
-                  <td><span class="badge badge-success">Paid</span></td>
-                  <td>
-                    <button class="btn btn-sm btn-info"><i class="fas fa-file-invoice"></i></button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+      </div>
+      <div class="col-md-3 mb-3">
+        <div class="card bg-warning text-white">
+          <div class="card-body text-center">
+            <h2>₱{{ total_deductions|floatformat:2 }}</h2>
+            <p class="mb-0">Deductions</p>
           </div>
         </div>
       </div>
     </div>
   </div>
+</div>
+      
+      <ul class="nav nav-tabs mb-3" id="payrollTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab" aria-controls="pending" aria-selected="true">Pending</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="processed-tab" data-bs-toggle="tab" data-bs-target="#processed" type="button" role="tab" aria-controls="processed" aria-selected="false">Processed</button>
+    </li>
+</ul>
+
+ <div class="tab-content" id="payrollTabContent">
+        <div class="tab-pane fade show active" id="pending" role="tabpanel" aria-labelledby="pending-tab">
+          <div class="table-responsive">
+            <form id="payrollCheckboxesForm">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Salary</th>
+                    <th>Deductions</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for payroll in pending_payrolls %}
+                  <tr>
+                    <td>{{ payroll.id }}</td>
+                    <td>{{ payroll.employee.first_name }} {{ payroll.employee.last_name }}</td>
+                    <td>{{ payroll.overall_pay }}</td>
+                    <td>{{ payroll.deductions }}</td>
+                    <td>
+                      <div class="form-check">
+                        <input class="form-check-input payroll-checkbox" type="checkbox" name="payroll_ids" value="{{ payroll.id }}" checked>
+                      </div>
+                    </td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="6">No pending payroll records</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </form>
+          </div>
+        </div>
+    
+    <div class="tab-pane fade" id="processed" role="tabpanel" aria-labelledby="processed-tab">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Salary</th>
+                        <th>Deductions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payroll in done_payrolls %}
+                    <tr>
+                        <td>{{ payroll.id }}</td>
+                        <td>{{ payroll.employee.first_name }} {{ payroll.employee.last_name }}</td>
+                        <td>{{ payroll.overall_pay }}</td>
+                        <td>{{ payroll.deductions }}</td>                      
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6">No processed payroll records</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
      
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>

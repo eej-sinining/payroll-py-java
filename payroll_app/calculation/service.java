@@ -65,14 +65,14 @@ public class service {
         
         for (AttendanceRecord record : records) {
             if (record.timeIn != null && record.timeOut != null) {
-                // Calculate hours worked
+                
                 double hours = Duration.between(record.timeIn, record.timeOut).toMinutes() / 60.0;
                 totalHours += hours;
                 
-                // Calculate daily pay
+                
                 double dailyPay = hours * hourlyRate;
                 
-                // Add overtime bonus if worked more than 8 hours
+                
                 if (hours > 8) {
                     dailyPay += (hours - 8) * bonusRate;
                 }
@@ -81,7 +81,7 @@ public class service {
             }
         }
         
-        // Apply deduction
+        
         overallPay -= deduction;
         
         return new PayrollResult(totalHours, overallPay, deduction);
